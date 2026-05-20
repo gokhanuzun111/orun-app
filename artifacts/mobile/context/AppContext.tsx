@@ -15,6 +15,7 @@ interface AppContextValue {
   isLoading: boolean;
   selectedInterests: string[];
   waitlist: WaitlistEntry[];
+  rsvpedEvents: string[];
   setSelectedInterests: (interests: string[]) => void;
   completeOnboarding: (handle: string, bio: string, interests: string[]) => Promise<void>;
   loginAsAdmin: () => Promise<void>;
@@ -26,6 +27,9 @@ interface AppContextValue {
   joinWaitlist: (clubId: string, email: string) => void;
   leaveWaitlist: (clubId: string) => void;
   isOnWaitlist: (clubId: string) => boolean;
+  rsvpEvent: (eventId: string) => void;
+  unrsvpEvent: (eventId: string) => void;
+  isRsvped: (eventId: string) => boolean;
   refreshUser: () => Promise<void>;
 }
 
@@ -56,6 +60,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([]);
+  const [rsvpedEvents, setRsvpedEvents] = useState<string[]>([]);
 
   const refreshUser = useCallback(async () => {
     const apiUser = await authService.getMe();
@@ -103,6 +108,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setIsOnboarded(false);
     setSelectedInterests([]);
     setWaitlist([]);
+    setRsvpedEvents([]);
   }, []);
 
   const completeOnboarding = useCallback(async (handle: string, bio: string, interests: string[]) => {
@@ -159,6 +165,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     [waitlist],
   );
 
+  const rsvpEvent = useCallback((eventId: string) => {
+    setRsvpedEvents(prev => prev.includes(eventId) ? prev : [...prev, eventId]);
+  }, []);
+
+  const unrsvpEvent = useCallback((eventId: string) => {
+    setRsvpedEvents(prev => prev.filter(id => id !== eventId));
+  }, []);
+
+  const isRsvped = useCallback(
+    (eventId: string) => rsvpedEvents.includes(eventId),
+    [rsvpedEvents],
+  );
+
   return (
     <AppContext.Provider
       value={{
@@ -178,6 +197,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         joinWaitlist,
         leaveWaitlist,
         isOnWaitlist,
+        rsvpedEvents,
+        rsvpEvent,
+        unrsvpEvent,
+        isRsvped,
         refreshUser,
       }}
     >

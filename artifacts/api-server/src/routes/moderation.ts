@@ -9,31 +9,18 @@ const router = Router();
 
 router.post("/reports", requireAuth, async (req: AuthRequest, res) => {
   const schema = z.object({
-    reportedUserId: z.number().int().optional(),
-    reportedHandle: z.string().min(1).max(80).optional(),
+    reportedUserId: z.number().int(),
     roomId: z.string().optional(),
     clubId: z.string().optional(),
     reason: z.string().min(1).max(100),
     details: z.string().max(1000).optional(),
-  }).refine(d => d.reportedUserId || d.reportedHandle, {
-    message: "reportedUserId veya reportedHandle gerekli",
   });
   const parsed = schema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "Geçersiz bilgiler" });
 
-  let reportedUserId = parsed.data.reportedUserId;
-  if (!reportedUserId && parsed.data.reportedHandle) {
-    const [u] = await db.select({ id: usersTable.id })
-      .from(usersTable)
-      .where(eq(usersTable.handle, parsed.data.reportedHandle))
-      .limit(1);
-    if (!u) return res.status(404).json({ error: "Kullanıcı bulunamadı" });
-    reportedUserId = u.id;
-  }
-
   const [report] = await db.insert(reportsTable).values({
     reporterId: req.userId!,
-    reportedUserId: reportedUserId!,
+    reportedUserId: parsed.data.reportedUserId,
     roomId: parsed.data.roomId,
     clubId: parsed.data.clubId,
     reason: parsed.data.reason,
