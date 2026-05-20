@@ -7,21 +7,30 @@ import { logger } from "./lib/logger";
 
 const app: Express = express();
 
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
 const ALLOWED_ORIGINS = (process.env.CORS_ORIGINS ?? "")
   .split(",")
   .map((o) => o.trim())
   .filter(Boolean);
 
+if (IS_PRODUCTION && ALLOWED_ORIGINS.length === 0) {
+  throw new Error(
+    "CORS_ORIGINS environment variable is required in production (comma-separated allowed origins).",
+  );
+}
+
 app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
+      if (ALLOWED_ORIGINS.includes(origin)) {
+        return callback(null, true);
+      }
       if (
-        ALLOWED_ORIGINS.length === 0 ||
-        ALLOWED_ORIGINS.includes(origin) ||
-        origin.endsWith(".replit.dev") ||
-        origin.endsWith(".expo.dev") ||
-        origin.endsWith(".sisko.replit.dev")
+        !IS_PRODUCTION &&
+        (origin.endsWith(".replit.dev") ||
+          origin.endsWith(".expo.dev") ||
+          origin.endsWith(".sisko.replit.dev"))
       ) {
         return callback(null, true);
       }
