@@ -721,6 +721,7 @@ export default function RoomScreen() {
         onClose={() => { setReportVisible(false); setReportTarget(null); }}
         authorHandle={reportTarget?.handle}
         messagePreview={reportTarget?.content}
+        roomId={room?.id}
       />
       <ActiveParticipantsPanel
         visible={showParticipants}

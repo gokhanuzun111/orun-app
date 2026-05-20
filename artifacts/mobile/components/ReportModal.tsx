@@ -1,6 +1,7 @@
 import { Feather } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   Modal,
   Pressable,
   ScrollView,
@@ -10,12 +11,16 @@ import {
   View,
 } from "react-native";
 import { useColors } from "@/hooks/useColors";
+import { submitReport } from "@/services/moderation";
 
 interface ReportModalProps {
   visible: boolean;
   onClose: () => void;
   messagePreview?: string;
   authorHandle?: string;
+  reportedUserId?: number;
+  roomId?: string;
+  clubId?: string;
 }
 
 const REPORT_REASONS = [
@@ -28,27 +33,58 @@ const REPORT_REASONS = [
   { id: "other", label: "Diğer" },
 ];
 
-export function ReportModal({ visible, onClose, messagePreview, authorHandle }: ReportModalProps) {
+export function ReportModal({
+  visible,
+  onClose,
+  messagePreview,
+  authorHandle,
+  reportedUserId,
+  roomId,
+  clubId,
+}: ReportModalProps) {
   const colors = useColors();
   const [selected, setSelected] = useState<string | null>(null);
   const [note, setNote] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = () => {
-    if (!selected) return;
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setSelected(null);
-      setNote("");
-      onClose();
-    }, 2000);
+  const handleSubmit = async () => {
+    if (!selected || submitting) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const detailsParts: string[] = [];
+      if (note.trim()) detailsParts.push(note.trim());
+      if (messagePreview) detailsParts.push(`Mesaj: "${messagePreview}"`);
+      await submitReport({
+        reportedUserId,
+        reportedHandle: reportedUserId ? undefined : authorHandle,
+        roomId,
+        clubId,
+        reason: selected,
+        details: detailsParts.join(" — ") || undefined,
+      });
+      setSubmitted(true);
+      setTimeout(() => {
+        setSubmitted(false);
+        setSelected(null);
+        setNote("");
+        onClose();
+      }, 2000);
+    } catch (e: any) {
+      setError(e?.message || "Rapor gönderilemedi. Lütfen tekrar deneyin.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleClose = () => {
     setSelected(null);
     setNote("");
     setSubmitted(false);
+    setError(null);
+    setSubmitting(false);
     onClose();
   };
 
@@ -141,20 +177,28 @@ export function ReportModal({ visible, onClose, messagePreview, authorHandle }: 
               Raporlar ORUN yapay zekâ moderatörü tarafından 24 saat içinde incelenir. Kötüye kullanım tespitinde hesabınız gözden geçirilebilir.
             </Text>
 
+            {error && (
+              <Text style={[styles.errorText, { color: "#ef4444" }]}>{error}</Text>
+            )}
+
             <Pressable
               style={[
                 styles.submitBtn,
                 {
-                  backgroundColor: selected ? colors.primary : colors.muted,
+                  backgroundColor: selected && !submitting ? colors.primary : colors.muted,
                   borderRadius: colors.radius,
                 },
               ]}
               onPress={handleSubmit}
-              disabled={!selected}
+              disabled={!selected || submitting}
             >
-              <Text style={[styles.submitText, { color: selected ? "#fff" : colors.mutedForeground }]}>
-                Raporu Gönder
-              </Text>
+              {submitting ? (
+                <ActivityIndicator color={colors.mutedForeground} size="small" />
+              ) : (
+                <Text style={[styles.submitText, { color: selected ? "#fff" : colors.mutedForeground }]}>
+                  Raporu Gönder
+                </Text>
+              )}
             </Pressable>
           </ScrollView>
         )}
@@ -211,6 +255,7 @@ const styles = StyleSheet.create({
     lineHeight: 17,
     fontStyle: "italic",
   },
+  errorText: { fontFamily: "Inter_500Medium", fontSize: 12, textAlign: "center" },
   submitBtn: { paddingVertical: 14, alignItems: "center", marginTop: 8 },
   submitText: { fontFamily: "Inter_600SemiBold", fontSize: 14, letterSpacing: 0.3 },
   successContainer: { flex: 1, alignItems: "center", justifyContent: "center", padding: 40, gap: 16 },

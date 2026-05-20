@@ -1,4 +1,5 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { Platform } from "react-native";
 import { type UserProfile, MOCK_USER, type MembershipLevel } from "@/constants/data";
 import * as authService from "@/services/auth";
 import { getStoredToken } from "@/services/api";
@@ -37,6 +38,55 @@ const AppContext = createContext<AppContextValue | null>(null);
 
 const OLD_DATE = "2025-01-01T00:00:00.000Z";
 
+function rsvpStorageKey(userId: string) {
+  return `@orun:rsvps:${userId}`;
+}
+
+async function loadRsvps(userId: string): Promise<string[]> {
+  try {
+    const key = rsvpStorageKey(userId);
+    let raw: string | null = null;
+    if (Platform.OS === "web") {
+      raw = localStorage.getItem(key);
+    } else {
+      const AsyncStorage = (await import("@react-native-async-storage/async-storage")).default;
+      raw = await AsyncStorage.getItem(key);
+    }
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+async function saveRsvps(userId: string, eventIds: string[]): Promise<void> {
+  try {
+    const key = rsvpStorageKey(userId);
+    const raw = JSON.stringify(eventIds);
+    if (Platform.OS === "web") {
+      localStorage.setItem(key, raw);
+    } else {
+      const AsyncStorage = (await import("@react-native-async-storage/async-storage")).default;
+      await AsyncStorage.setItem(key, raw);
+    }
+  } catch {
+  }
+}
+
+async function clearRsvps(userId: string): Promise<void> {
+  try {
+    const key = rsvpStorageKey(userId);
+    if (Platform.OS === "web") {
+      localStorage.removeItem(key);
+    } else {
+      const AsyncStorage = (await import("@react-native-async-storage/async-storage")).default;
+      await AsyncStorage.removeItem(key);
+    }
+  } catch {
+  }
+}
+
 function apiUserToProfile(apiUser: authService.ApiUser): UserProfile {
   return {
     id: String(apiUser.id),
@@ -62,13 +112,35 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([]);
   const [rsvpedEvents, setRsvpedEvents] = useState<string[]>([]);
 
+  const rsvpUserIdRef = useRef<string | null>(null);
+  const isInitialRsvpLoad = useRef(true);
+
+  const loadAndSetRsvps = useCallback(async (userId: string) => {
+    rsvpUserIdRef.current = userId;
+    isInitialRsvpLoad.current = true;
+    const stored = await loadRsvps(userId);
+    setRsvpedEvents(stored);
+  }, []);
+
+  useEffect(() => {
+    if (isInitialRsvpLoad.current) {
+      isInitialRsvpLoad.current = false;
+      return;
+    }
+    const userId = rsvpUserIdRef.current;
+    if (!userId || userId === MOCK_USER.id) return;
+    saveRsvps(userId, rsvpedEvents);
+  }, [rsvpedEvents]);
+
   const refreshUser = useCallback(async () => {
     const apiUser = await authService.getMe();
     if (apiUser) {
-      setUser(apiUserToProfile(apiUser));
+      const profile = apiUserToProfile(apiUser);
+      setUser(profile);
       setIsOnboarded(true);
+      await loadAndSetRsvps(profile.id);
     }
-  }, []);
+  }, [loadAndSetRsvps]);
 
   useEffect(() => {
     const init = async () => {
@@ -87,27 +159,37 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const loginAsAdmin = useCallback(async () => {
     const apiUser = await authService.login("admin@orun.app", process.env.EXPO_PUBLIC_ADMIN_PASSWORD ?? "orun-admin-2024");
-    setUser(apiUserToProfile(apiUser));
+    const profile = apiUserToProfile(apiUser);
+    setUser(profile);
     setIsOnboarded(true);
-  }, []);
+    await loadAndSetRsvps(profile.id);
+  }, [loadAndSetRsvps]);
 
   const loginWithEmail = useCallback(async (email: string, password: string) => {
     const apiUser = await authService.login(email, password);
-    setUser(apiUserToProfile(apiUser));
+    const profile = apiUserToProfile(apiUser);
+    setUser(profile);
     setIsOnboarded(true);
-  }, []);
+    await loadAndSetRsvps(profile.id);
+  }, [loadAndSetRsvps]);
 
   const registerWithEmail = useCallback(async (name: string, email: string, password: string) => {
     const apiUser = await authService.register(name, email, password);
-    setUser(apiUserToProfile(apiUser));
-  }, []);
+    const profile = apiUserToProfile(apiUser);
+    setUser(profile);
+    await loadAndSetRsvps(profile.id);
+  }, [loadAndSetRsvps]);
 
   const logout = useCallback(async () => {
+    const userId = rsvpUserIdRef.current;
     await authService.logout();
+    if (userId) await clearRsvps(userId);
+    rsvpUserIdRef.current = null;
     setUser(MOCK_USER);
     setIsOnboarded(false);
     setSelectedInterests([]);
     setWaitlist([]);
+    isInitialRsvpLoad.current = true;
     setRsvpedEvents([]);
   }, []);
 
@@ -124,7 +206,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     };
     setUser(profileUser);
     setIsOnboarded(true);
-  }, []);
+    await loadAndSetRsvps(profileUser.id);
+  }, [loadAndSetRsvps]);
 
   const joinClub = useCallback((clubId: string) => {
     setUser(prev => {
