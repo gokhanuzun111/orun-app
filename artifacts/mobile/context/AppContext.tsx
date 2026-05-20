@@ -23,6 +23,7 @@ interface AppContextValue {
   loginWithEmail: (email: string, password: string) => Promise<void>;
   registerWithEmail: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
   joinClub: (clubId: string) => void;
   leaveClub: (clubId: string) => void;
   joinWaitlist: (clubId: string, email: string) => void;
@@ -193,6 +194,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setRsvpedEvents([]);
   }, []);
 
+  const deleteAccount = useCallback(async () => {
+    const userId = rsvpUserIdRef.current;
+    await authService.deleteAccount();
+    if (userId) await clearRsvps(userId);
+    rsvpUserIdRef.current = null;
+    setUser(MOCK_USER);
+    setIsOnboarded(false);
+    setSelectedInterests([]);
+    setWaitlist([]);
+    isInitialRsvpLoad.current = true;
+    setRsvpedEvents([]);
+  }, []);
+
   const completeOnboarding = useCallback(async (handle: string, bio: string, interests: string[]) => {
     const apiUser = await authService.updateProfile({ handle, bio, interests });
     const profileUser: UserProfile = {
@@ -275,6 +289,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         loginWithEmail,
         registerWithEmail,
         logout,
+        deleteAccount,
         joinClub,
         leaveClub,
         joinWaitlist,

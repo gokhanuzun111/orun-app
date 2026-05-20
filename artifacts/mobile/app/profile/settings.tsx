@@ -2,7 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useRouter, type Href } from "expo-router";
 import React, { type ComponentProps, useState } from "react";
-import { Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
+import { Linking, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import { useApp } from "@/context/AppContext";
@@ -59,6 +59,14 @@ export default function SettingsScreen() {
           type: "nav",
           sublabel: "ÜYE",
           onPress: () => router.push("/profile/membership"),
+        },
+        {
+          id: "delete-account",
+          label: "Hesabı Sil",
+          icon: "trash-2",
+          type: "destructive",
+          sublabel: "Hesabını ve tüm verilerini kalıcı olarak siler",
+          onPress: () => router.push("/profile/delete-account" as Href),
         },
       ],
     },
@@ -178,14 +186,14 @@ export default function SettingsScreen() {
           label: "Gizlilik politikası",
           icon: "lock",
           type: "nav",
-          onPress: () => {},
+          onPress: () => Linking.openURL("https://orunsociety.com/privacy"),
         },
         {
           id: "terms",
           label: "Kullanım koşulları",
           icon: "file-text",
           type: "nav",
-          onPress: () => {},
+          onPress: () => Linking.openURL("https://orunsociety.com/terms"),
         },
       ],
     },

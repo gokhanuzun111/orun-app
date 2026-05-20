@@ -42,6 +42,14 @@ export async function logout(): Promise<void> {
   await clearStoredToken();
 }
 
+export async function deleteAccount(): Promise<void> {
+  await apiFetch("/auth/account", {
+    method: "DELETE",
+    body: JSON.stringify({ confirm: "HESABIMI SIL" }),
+  });
+  await clearStoredToken();
+}
+
 export async function getMe(): Promise<ApiUser | null> {
   try {
     const { user } = await apiFetch<{ user: ApiUser }>("/auth/me");

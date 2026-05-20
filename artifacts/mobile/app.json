@@ -16,20 +16,40 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.orun.app",
+      "bundleIdentifier": "com.orunsociety.app",
       "buildNumber": "1",
       "infoPlist": {
-        "NSCameraUsageDescription": "ORUN profil fotoğrafı için kameranıza erişmek istiyor.",
-        "NSPhotoLibraryUsageDescription": "ORUN profil fotoğrafı için fotoğraf kütüphanenize erişmek istiyor.",
-        "NSMicrophoneUsageDescription": "ORUN sesli mesajlar için mikrofonunuza erişmek istiyor.",
-        "ITSAppUsesNonExemptEncryption": false
+        "NSCameraUsageDescription": "ORUN, profil fotoğrafı çekebilmen için kameranı kullanır.",
+        "NSPhotoLibraryUsageDescription": "ORUN, profil fotoğrafını seçebilmen için fotoğraf kütüphanene erişir.",
+        "NSPhotoLibraryAddUsageDescription": "ORUN, kaydettiğin içerikleri fotoğraf kütüphanene eklemek için izin ister.",
+        "NSMicrophoneUsageDescription": "ORUN, sesli mesaj göndermen için mikrofonu kullanır.",
+        "NSUserTrackingUsageDescription": "Bu izin yalnızca seni daha iyi tanımamız için anonim kullanım istatistikleri toplamamıza yarar.",
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPrivacyAccessedAPITypes": [
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryUserDefaults",
+            "NSPrivacyAccessedAPITypeReasons": ["CA92.1"]
+          },
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryFileTimestamp",
+            "NSPrivacyAccessedAPITypeReasons": ["C617.1"]
+          },
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategorySystemBootTime",
+            "NSPrivacyAccessedAPITypeReasons": ["35F9.1"]
+          },
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryDiskSpace",
+            "NSPrivacyAccessedAPITypeReasons": ["E174.1"]
+          }
+        ]
       },
       "config": {
         "usesNonExemptEncryption": false
       }
     },
     "android": {
-      "package": "com.orun.app"
+      "package": "com.orunsociety.app"
     },
     "web": {
       "favicon": "./assets/images/icon.png",

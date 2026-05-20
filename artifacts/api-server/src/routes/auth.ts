@@ -94,6 +94,16 @@ router.get("/auth/me", requireAuth, (req: AuthRequest, res) => {
   return res.json({ user: safeUser });
 });
 
+router.delete("/auth/account", requireAuth, async (req: AuthRequest, res) => {
+  const schema = z.object({ confirm: z.literal("HESABIMI SIL") });
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: "Onay metni eksik veya hatalı" });
+  }
+  await db.delete(usersTable).where(eq(usersTable.id, req.userId!));
+  return res.json({ ok: true });
+});
+
 router.patch("/auth/me", requireAuth, async (req: AuthRequest, res) => {
   const schema = z.object({
     bio: z.string().max(300).optional(),
