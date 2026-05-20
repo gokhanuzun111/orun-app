@@ -1,0 +1,206 @@
+Create a premium iOS-first mobile application called “ORUN”.
+
+Tech Stack:
+- React Native with Expo
+- TypeScript
+- Expo Router
+- NativeWind (Tailwind)
+- Supabase backend
+- OpenAI API integration
+- RevenueCat subscription system
+- Zustand state management
+- Dark luxury UI
+- Smooth animations
+- Production-ready architecture
+
+APP CONCEPT:
+ORUN is an AI-assisted private social club platform for sophisticated niche communities.
+
+The app combines:
+- intelligent communities
+- premium club memberships
+- AI moderation
+- social interaction
+- events
+- curated content
+- elite atmosphere
+
+DESIGN LANGUAGE:
+- Minimal
+- Elegant
+- Cinematic
+- Black / anthracite / deep graphite palette
+- Soft gold accents
+- Modern typography
+- Luxury social club feeling
+- Smooth blur cards
+- Rounded premium UI
+- Apple-level polished design
+
+MAIN CLUBS:
+1. Watches & Jewelry
+2. Whisky / Wine / Cocktails
+3. Cigars
+4. Books
+5. Cinema & TV
+6. Philosophy & Psychology
+7. Gastronomy
+8. Aviation
+9. Cars & Offroad
+10. Motorcycles
+11. Fitness & Sports
+12. Maritime
+13. Music
+14. Art & Sculpture
+
+Each club must have:
+- discussion feed
+- AI moderator
+- event area
+- media sharing
+- member list
+- club chat
+- recommended content
+- premium aesthetic header
+
+USER SYSTEM:
+4 membership levels:
+
+1. FREE
+- limited clubs
+- read-only in some areas
+- limited AI usage
+
+2. CORE
+Monthly subscription
+- access to all standard clubs
+- participate in discussions
+- attend public events
+
+3. ELITE
+Higher subscription
+- private rooms
+- advanced AI assistant
+- exclusive events
+- networking features
+- premium badge
+
+4. INNER CIRCLE
+Invite-only status
+Cannot be purchased directly.
+Unlocked only after:
+- months of positive engagement
+- community quality
+- expertise
+- activity score
+- AI moderation approval
+
+AI SYSTEM:
+Build an AI social moderation engine.
+
+AI should:
+- recommend people
+- suggest discussions
+- summarize conversations
+- propose events
+- detect toxic behavior
+- help create quality discussions
+- intelligently onboard users
+
+Create:
+- AI welcome interview flow
+- personality/taste onboarding
+- recommendation engine UI
+- AI-generated club insights
+
+HOME SCREEN:
+Premium dashboard containing:
+- active clubs
+- trending discussions
+- upcoming events
+- AI recommendations
+- member activity
+- elegant animations
+
+SOCIAL FEATURES:
+- follow members
+- reactions
+- comments
+- premium profiles
+- private messaging UI
+- event RSVP
+- interest tags
+- club achievements
+
+EVENT SYSTEM:
+Users can create:
+- meetups
+- tastings
+- rides
+- discussions
+- private gatherings
+
+Include:
+- beautiful event cards
+- map placeholders
+- RSVP system
+- attendance limits
+
+AUTH:
+- Supabase auth
+- Apple Sign In
+- Google login
+- onboarding flow
+
+SUBSCRIPTIONS:
+Integrate RevenueCat-ready architecture:
+- Free
+- Core Monthly
+- Elite Monthly
+
+SETTINGS:
+- profile editing
+- club management
+- notifications
+- subscription management
+- privacy controls
+
+IMPORTANT:
+- Make everything modular
+- Create scalable folder architecture
+- Use reusable premium UI components
+- Create realistic mock data
+- Build MANY screens
+- Do not leave placeholders everywhere
+- App must feel real and premium
+- Use smooth transitions
+- Add loading skeletons
+- Add empty states
+- Add elegant micro interactions
+
+CREATE:
+- full navigation
+- beautiful onboarding
+- login/register
+- home feed
+- club pages
+- discussion pages
+- AI onboarding
+- profile pages
+- subscription paywall
+- settings screens
+- event pages
+- premium member cards
+
+ALSO:
+- Configure Expo properly
+- Prepare iOS-ready structure
+- Add app icon placeholder
+- Add splash screen
+- Add environment variable structure
+- Add Supabase service layer
+- Add API utilities
+- Add clean architecture
+
+Finally:
+Generate a polished MVP that already looks like a real App Store quality premium social club application.

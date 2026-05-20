@@ -1,0 +1,350 @@
+Build a premium iOS-first mobile social platform called “ORUN”.
+
+CORE IDENTITY:
+ORUN is NOT a traditional social network.
+It is a curated digital club ecosystem for high quality people and hobbies.
+
+The feeling should be:
+- Apple-like minimalism
+- calm
+- intelligent
+- premium
+- quiet luxury
+- slow social
+
+Avoid:
+- gaming aesthetics
+- Discord aesthetics
+- Reddit/forum feeling
+- flashy gradients
+- neon colors
+- influencer culture
+- dopamine UI patterns
+
+DESIGN LANGUAGE:
+- ultra minimal UI
+- black / white / soft gray palette
+- thin typography
+- elegant spacing
+- soft rounded corners
+- smooth subtle animations
+- modern iOS feeling
+- premium typography hierarchy
+- clean cards
+- lots of whitespace
+
+REFERENCE VIBE:
+- Apple Music
+- iMessage
+- Linear
+- Notion
+- Are.na
+
+APP TYPE:
+Mobile-first community app.
+Feels like a mix of:
+- iMessage
+- WhatsApp
+- curated private club
+- AI-powered social network
+
+NO PUBLIC FOLLOWER CULTURE.
+
+========================================
+MAIN STRUCTURE
+========================================
+
+Create 4 main tabs:
+
+1. CLUBS
+2. FLOW
+3. ROOMS
+4. SEARCH
+
+========================================
+TAB 1 — CLUBS
+========================================
+
+Display premium interest clubs.
+
+Each club has:
+- icon
+- title
+- short description
+- member count
+- minimal aesthetic card
+
+Main clubs:
+- Motorcycles
+- Watches & Jewelry
+- Whisky / Wine / Cocktails
+- Cigars
+- Books
+- Film & TV
+- Maritime
+- Music
+- Aviation
+- Gastronomy
+- Fitness & Sports
+- Cars & Offroad
+- Philosophy / Psychology / Art
+- History
+- Fashion
+- Finance / Crypto
+- Agriculture
+- Landscaping
+- Mountaineering
+- Camping & Caravan
+- Models & Miniatures
+- Dance
+- Sim Racing
+- Archery & Tactical Shooting
+- Languages
+- Perfume
+
+Each club opens into:
+- live text rooms
+- curated conversations
+- club info
+
+========================================
+TAB 2 — FLOW
+========================================
+
+AI-curated high quality discussions.
+
+NOT infinite doomscrolling.
+
+Only show:
+- thoughtful messages
+- quality conversations
+- intelligent discussions
+
+UI:
+- elegant cards
+- message previews
+- calm scrolling
+- no aggressive engagement design
+
+========================================
+TAB 3 — ROOMS
+========================================
+
+Realtime text-only rooms.
+
+Examples:
+- Japanese Whisky
+- Porsche GT3
+- Swiss Watch Movements
+- Istanbul Cocktail Bars
+- A320 Aviation
+- Sailing Mediterranean
+
+Features:
+- realtime messaging
+- WhatsApp-like message flow
+- ephemeral image support
+- reply system
+- reactions
+- search in room
+
+NO voice chat.
+NO livestreams.
+
+========================================
+TAB 4 — SEARCH
+========================================
+
+Global intelligent search.
+
+Search:
+- users
+- rooms
+- clubs
+- keywords
+- discussions
+- messages
+
+Include semantic AI-style search feel.
+
+========================================
+USER SYSTEM
+========================================
+
+Users register with:
+- phone verification
+- nickname only
+- optional profile image
+
+NO real-name requirement.
+
+Example usernames:
+- @northwind
+- @saltpilot
+- @velours
+- @aerolith
+
+Profile contains:
+- joined clubs
+- reputation level
+- bio
+- interests
+
+========================================
+MEMBERSHIP SYSTEM
+========================================
+
+Create 5 membership levels:
+
+LEVEL 0 — GUEST
+Free.
+Limited access.
+
+LEVEL 1 — MEMBER
+Paid subscription.
+
+LEVEL 2 — CIRCLE
+Premium membership.
+
+LEVEL 3 — RESERVE
+High-tier curated membership.
+
+LEVEL 4 — SOCIETY
+Invitation / earned only.
+
+Each level should have:
+- elegant UI badge
+- premium typography
+- subtle prestige
+
+NO gamification.
+NO XP bars.
+NO flashy badges.
+
+========================================
+AI INTERVIEW SYSTEM
+========================================
+
+During onboarding:
+users answer thoughtful AI interview questions.
+
+Examples:
+- Favorite book and why?
+- What hobby defines you?
+- What makes a good community?
+- Favorite whisky and why?
+
+AI evaluates:
+- toxicity
+- spam likelihood
+- intelligence
+- effort quality
+- authenticity
+
+Possible outputs:
+- approved
+- waitlist
+- rejected
+
+Create onboarding flow UI for this.
+
+========================================
+MODERATION SYSTEM
+========================================
+
+AI moderation system monitors:
+- profanity
+- spam
+- advertising
+- toxic behavior
+- harassment
+- political chaos
+- bot-like behavior
+
+Rule system:
+- 3 strikes
+- cooldowns
+- temporary mute
+- 1 month suspension
+
+Show moderation architecture placeholders.
+
+========================================
+DM SYSTEM
+========================================
+
+Direct messages unlock only if:
+- both users are active
+- reputation threshold met
+- interaction quality sufficient
+
+Prevent spam and harassment.
+
+========================================
+EPHEMERAL IMAGES
+========================================
+
+Users may upload photos inside rooms.
+
+Photos:
+- disappear after 24h
+- minimal UI
+- elegant viewer
+
+TEXT remains the primary medium.
+
+========================================
+TECH STACK
+========================================
+
+Use:
+- FlutterFlow-compatible architecture
+- Supabase backend structure
+- realtime chat architecture
+- Firebase push notifications
+- OpenAI moderation placeholders
+
+========================================
+IMPORTANT UX RULES
+========================================
+
+The app must feel:
+- calm
+- intelligent
+- premium
+- sophisticated
+- emotionally quiet
+
+DO NOT make it:
+- addictive
+- childish
+- flashy
+- meme-heavy
+- chaotic
+
+No bright gradients.
+No gaming UI.
+No TikTok style feed.
+
+========================================
+OUTPUT REQUIREMENTS
+========================================
+
+Generate:
+- complete mobile app UI
+- onboarding screens
+- membership screens
+- club pages
+- realtime room UI
+- search interface
+- profile pages
+- moderation placeholders
+- elegant navigation
+- premium empty states
+- settings page
+- notification page
+
+Everything should look production-ready and App Store quality.
+
+Name of app:
+ORUN

@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "ORUN",
+    "slug": "mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "mobile",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A0A0A"
+    },
+    "ios": {
+      "supportsTablet": false
+    },
+    "android": {},
+    "web": {
+      "favicon": "./assets/images/icon.png",
+      "name": "ORUN",
+      "shortName": "ORUN",
+      "description": "ORUN — düşünceli insanlar için seçilmiş dijital kulüpler. Ortak ilgi alanları etrafında kurulmuş özel odalara katılın, yapay zekâ destekli sohbetlerin içinde yerinizi alın.",
+      "themeColor": "#1B3A6B",
+      "backgroundColor": "#0A0A0A",
+      "lang": "tr"
+    },
+    "plugins": [
+      [
+        "expo-router",
+        {
+          "origin": "https://replit.com/"
+        }
+      ],
+      "expo-font",
+      "expo-web-browser"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}

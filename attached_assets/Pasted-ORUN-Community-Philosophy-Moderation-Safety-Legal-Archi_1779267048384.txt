@@ -1,0 +1,283 @@
+ORUN — Community Philosophy, Moderation, Safety & Legal Architecture
+
+CORE PHILOSOPHY
+
+ORUN is NOT a loud social media platform.
+ORUN is a calm, intelligent, premium digital club ecosystem.
+
+The atmosphere must feel:
+- safe
+- elegant
+- emotionally comfortable
+- intelligent
+- non-addictive
+- respectful
+- high quality
+- spam-free
+- low noise
+- premium
+
+The app should psychologically feel closer to:
+- a private lounge
+- an intellectual social club
+- a modern members salon
+than a traditional social network.
+
+MINIMALISM RULES
+
+- Avoid visual chaos.
+- Avoid notification overload.
+- Avoid aggressive colors.
+- Avoid dopamine-driven infinite content addiction mechanics.
+- Avoid cheap social media feeling.
+- Use whitespace generously.
+- Focus on calm interactions.
+- Prioritize readability and emotional comfort.
+- Slow premium UI feeling.
+- Elegant transitions.
+- Soft animations only.
+- No visual clutter.
+
+COMMUNITY STRUCTURE
+
+Main clubs:
+
+- Kadran
+- Mahzen
+- Amber
+- Satır Arası
+- Perde
+- Agora
+- Sofra
+- İrtifa
+- Garaj
+- Apex
+- Tempo
+- Liman
+- Rezonans
+- Atölye
+
+MEMBERSHIP LEVELS
+
+1. Aday
+2. Üye
+3. Müdavim
+4. Seçkin
+
+MEMBERSHIP LOGIC
+
+Aday:
+- limited visibility
+- read-only in some areas
+- limited AI usage
+- onboarding interview required
+
+Üye:
+- full standard access
+- discussion participation
+- reactions and comments
+- public event access
+
+Müdavim:
+- direct messaging
+- premium rooms
+- advanced AI features
+- event participation priority
+
+Seçkin:
+- highest visibility
+- concierge AI
+- exclusive rooms
+- event creation
+- elite badge
+- priority networking
+
+TOKEN SYSTEM
+
+Aday:
+250 monthly AI tokens
+
+Üye:
+5000 monthly AI tokens
+
+Müdavim:
+20000 monthly AI tokens
+
+Seçkin:
+100000 monthly AI tokens
+
+AI MODERATION SYSTEM
+
+This is CRITICAL.
+
+ORUN must prioritize:
+- psychological comfort
+- civility
+- quality discussion
+- emotional safety
+- low toxicity
+
+The platform must use AI moderation continuously.
+
+AI MODERATION SHOULD:
+
+- detect harassment
+- detect insults
+- detect threats
+- detect spam
+- detect trolling
+- detect hate speech
+- detect aggressive behavior
+- detect manipulation attempts
+- detect mass promotion
+- detect scams
+- detect explicit illegal content
+- detect dangerous radicalization
+- detect coordinated abuse
+
+AI should automatically:
+- warn users
+- reduce visibility
+- temporary mute
+- freeze posting
+- escalate to manual review
+- auto-remove extreme content
+
+TOXICITY POLICY
+
+ORUN is not designed for:
+- political fighting
+- rage culture
+- outrage farming
+- harassment
+- chaos engagement
+- spam communities
+
+The app should intentionally discourage:
+- addictive doom scrolling
+- algorithmic rage amplification
+- viral toxicity
+
+QUALITY-FIRST INTERACTION MODEL
+
+Encourage:
+- thoughtful replies
+- intelligent discussions
+- respectful disagreement
+- niche expertise
+- mentorship
+- real human connection
+
+Discourage:
+- low-effort posting
+- repetitive spam
+- engagement bait
+- attention farming
+
+ANTI-SPAM SYSTEM
+
+Build:
+- AI spam scoring
+- rate limits
+- shadow restrictions
+- suspicious behavior detection
+- duplicate content detection
+- fake account detection
+- VPN abuse detection
+- mass invite detection
+
+Restrict:
+- mass messaging
+- aggressive following
+- suspicious account creation
+- automated posting behavior
+
+LEGAL SAFETY SYSTEM
+
+This section is EXTREMELY IMPORTANT.
+
+The platform architecture must legally protect the company and owners as much as possible.
+
+IMPLEMENT:
+
+- Terms of Service acceptance
+- Privacy Policy acceptance
+- Community Rules acceptance
+- explicit user consent logs
+- moderation logs
+- action logs
+- audit trails
+- report systems
+- appeal systems
+- content reporting flow
+- age confirmation
+- GDPR-compatible data handling
+- KVKK-compatible data handling
+- moderation transparency logs
+- consent timestamps
+- IP/device abuse monitoring
+
+USERS MUST AGREE THAT:
+
+- they are responsible for their own content
+- ORUN is a hosting platform
+- ORUN may remove content at any time
+- ORUN may suspend accounts without notice
+- ORUN is not liable for user-generated content
+- ORUN may use AI moderation systems
+- abusive behavior may lead to permanent removal
+
+IMPLEMENT STRONG PLATFORM PROTECTION:
+
+- content disclaimers
+- event liability disclaimers
+- user responsibility clauses
+- anti-harassment policies
+- anti-illegal activity policies
+- moderation rights reservation
+- AI moderation disclosure
+- no-guarantee clauses
+
+MESSAGING SAFETY
+
+Direct messages must include:
+- reporting tools
+- block system
+- mute system
+- abuse escalation
+- screenshot abuse detection placeholders
+
+EVENT SAFETY
+
+Event pages must include:
+- disclaimers
+- attendance responsibility notice
+- organizer responsibility statement
+- optional approval system
+- private/public controls
+
+PRIVACY PHILOSOPHY
+
+ORUN should feel:
+- discreet
+- trusted
+- emotionally secure
+
+Avoid:
+- creepy tracking feeling
+- invasive notifications
+- over-collection of data
+
+DESIGN GOAL
+
+The final product should feel like:
+“a calm luxury digital members club with intelligent AI moderation and emotionally safe social interaction.”
+
+The product must never feel like:
+- Twitter/X
+- Facebook
+- noisy Discord servers
+- toxic Reddit threads
+- dopamine addiction apps
+
+Build a refined, elegant, emotionally safe, legally protected premium social platform.

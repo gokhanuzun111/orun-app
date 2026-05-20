@@ -1,0 +1,287 @@
+ORUN
+
+Konsept
+
+ORUN, yapay zekâ destekli premium sosyal kulüp uygulaması.
+
+Amaç:
+insanları algoritmik “doom scroll” yerine,
+anlamlı ilgi alanları etrafında kaliteli topluluklara sokmak.
+
+Klasik sosyal medya değil.
+
+Daha çok:
+
+* modern salon kültürü
+* özel topluluk
+* entelektüel kulüp
+* AI moderasyonlu sosyal çevre
+
+karışımı.
+
+⸻
+
+İsmin Anlamı
+
+Eski Türkçe:
+
+yer, makam, oturma alanı, özel alan.
+
+Konseptle birebir örtüşüyor:
+
+insanların kendine ait çevre ve oda bulduğu dijital alan.
+
+Kısa.
+Premium.
+Global okunabilir.
+Karakterli.
+
+⸻
+
+Ana Fikir
+
+Kullanıcı uygulamaya giriyor.
+
+İlgi alanlarını seçiyor:
+
+* viski
+* puro
+* kitap
+* felsefe
+* psikoloji
+* motosiklet
+* Amerikan arabaları
+* kahve
+* saatler
+* sanat
+* yatırım
+* sinema
+* jazz
+* seyahat
+    vs.
+
+Sonra AI:
+
+* kişiyi tanıyor
+* karakterini analiz ediyor
+* konuşma tarzını öğreniyor
+* uygun insanları eşleştiriyor
+* sohbetleri yönetiyor
+* etkinlik öneriyor
+* kaliteli ortam oluşturuyor.
+
+⸻
+
+En Büyük Fark
+
+AI sadece chatbot değil.
+
+AI:
+
+* moderatör
+* salon yöneticisi
+* host
+* eşleştirici
+* etkinlik düzenleyicisi
+* kültür taşıyıcısı.
+
+oluyor.
+
+⸻
+
+ORUN Rooms Sistemi
+
+Ana ekran:
+feed değil.
+
+“Rooms” sistemi.
+
+Örnek odalar:
+
+* Whisky Room
+* Philosophy Room
+* Cigars Room
+* Books Room
+* Watches Room
+* Motorcycles Room
+* Cinema Room
+* Jazz Room
+
+İnsanlar odalara giriyor.
+
+AI:
+
+* konu açıyor
+* tartışma başlatıyor
+* insanları tanıştırıyor
+* toksisiteyi azaltıyor
+* kaliteli akış sağlıyor.
+
+⸻
+
+AI Moderasyon Sistemi
+
+Örnek:
+
+Akşam 21:00
+
+AI bildirim gönderiyor:
+
+“Bu gece İstanbul’daki 6 viski meraklısı çevrimiçi. Japon viskileri üzerine yeni salon açıldı.”
+
+İnsanlar katılıyor.
+
+AI:
+
+* sohbeti yönetiyor
+* soru soruyor
+* yeni geleni tanıtıyor
+* ortak ilgi alanlarını bağlıyor
+* ortamı canlı tutuyor.
+
+⸻
+
+Gerçek Hayat Buluşmaları
+
+ORUN zamanla:
+dijitalden fiziksele geçiyor.
+
+Örneğin:
+
+* Kadıköy kahve buluşması
+* viski tadım gecesi
+* motosiklet sürüşü
+* kitap salonu
+* puro lounge meetup
+* felsefe & şarap gecesi.
+
+AI:
+
+* insanları eşleştiriyor
+* uygun mekan öneriyor
+* küçük kaliteli çevreler kuruyor.
+
+⸻
+
+Atmosfer
+
+ORUN:
+
+* TikTok gibi değil
+* Discord gibi değil
+* Reddit gibi değil.
+
+Hedef atmosfer:
+
+* sakin
+* kaliteli
+* premium
+* yetişkin
+* düşünsel
+* loş salon hissi.
+
+Vibe:
+
+* Soho House
+* Monocle
+* Japon lounge kültürü
+* modern entelektüel kulüp.
+
+⸻
+
+Tasarım Dili
+
+Renkler:
+
+* siyah
+* koyu kömür
+* amber ışık
+* bronz
+* sıcak beyaz.
+
+Asla:
+
+* neon AI mavisi
+* cyberpunk
+* klasik sosyal medya görünümü
+    değil.
+
+⸻
+
+Hedef Kitle
+
+25–45 yaş:
+
+* kaliteli çevre isteyen
+* kültürel hobileri olan
+* premium lifestyle ilgisi bulunan
+* toksik sosyal medyadan sıkılmış
+    kişiler.
+
+⸻
+
+Gelir Modeli
+
+Premium üyelik
+
+* özel odalar
+* AI concierge
+* gelişmiş eşleşme
+* özel etkinlikler.
+
+Marka ortaklıkları
+
+* viski barları
+* puro lounge’lar
+* kahve markaları
+* saat markaları
+* motosiklet ekipmanları
+* lifestyle markaları.
+
+Özel kulüpler
+
+Davet sistemiyle çalışan premium çevreler.
+
+⸻
+
+Teknik Yapı (MVP)
+
+İlk sürüm:
+
+* iOS öncelikli
+* minimalist onboarding
+* Rooms sistemi
+* AI moderasyon
+* profil & ilgi alanı sistemi
+* etkinlik altyapısı.
+
+Tech stack:
+
+* Supabase￼
+* FlutterFlow￼
+* OpenAI API￼
+
+ile hızlı MVP çıkarılabilir.
+
+⸻
+
+Marka Konumlandırması
+
+ORUN
+
+Curated circles for thoughtful people.
+
+veya
+
+Intelligent rooms for meaningful conversations.
+
+⸻
+
+En Güçlü Taraf
+
+ORUN bir “uygulama” gibi değil,
+gerçek bir kültür markası gibi büyüyebilir.
+
+Asıl değer:
+kodda değil,
+ortamda ve topluluk hissinde oluşacak.
