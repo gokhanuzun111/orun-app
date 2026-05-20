@@ -1,0 +1,379 @@
+Build ORUN as a premium AI-powered private social club platform for iOS and Android.
+
+CORE IDENTITY
+ORUN is not a chaotic social network.
+ORUN is a calm, premium, intelligent, minimalist lifestyle club ecosystem.
+The atmosphere should feel elegant, safe, high-quality, slow-paced and refined.
+No dopamine-heavy social media design.
+No toxic engagement farming.
+No noisy notifications.
+No ragebait culture.
+
+The design language should feel closer to:
+- Soho House
+- Aman Club
+- Private yacht clubs
+- Intellectual salons
+- Quiet luxury communities
+
+Visual style:
+- Minimalist
+- Sophisticated typography
+- Soft animations
+- Dark elegant theme
+- Matte textures
+- Calm spacing
+- Premium feel
+- No neon cyberpunk style
+- No gamer aesthetics
+
+TECH STACK
+- Expo React Native mobile app
+- Node.js backend
+- PostgreSQL database
+- OpenAI integration through backend only
+- RevenueCat for subscriptions
+- Secure API architecture
+- Production-ready environment configs
+- App Store ready
+
+CORE CLUBS
+Main clubs:
+- Havacılık
+- Gastronomi
+- Viski & Şarap
+- Puro
+- Denizcilik
+- Kitap
+- Film & Dizi
+- Felsefe & Psikoloji
+- Spor & Fitness
+- Otomobil & Offroad
+- Saat & Mücevher
+- Motosiklet
+- Yapay Zeka
+- Sanat & Tasarım
+- Müzik
+
+Each main club can contain subclubs and rooms.
+
+MEMBERSHIP SYSTEM
+
+Membership levels:
+1. Aday
+2. Üye
+3. Müdavim
+4. Seçkin
+
+Rules:
+- Aday can directly purchase entry after AI onboarding interview.
+- Üye and Müdavim unlock more features progressively.
+- Seçkin cannot be purchased directly.
+- Seçkin is earned over time through quality participation, trust score and community reputation.
+
+PAYMENT PHILOSOPHY
+Keep payments extremely simple, frictionless and premium.
+
+SUPPORTED PAYMENT METHODS
+Only support:
+- Apple Pay
+- Mobile Carrier Billing (Mobil Ödeme)
+
+Do NOT add:
+- Credit card forms
+- Manual bank transfer
+- Crypto
+- Complex third-party checkout pages
+- PayPal
+- Web payment clutter
+
+IOS PAYMENTS
+For iOS:
+- Use App Store subscriptions through RevenueCat
+- Native Apple-style purchase experience
+- One-tap membership upgrade flow
+
+MOBILE CARRIER BILLING
+For Türkiye:
+- Support Turkcell
+- Vodafone Türkiye
+- Türk Telekom
+
+Allow users to subscribe using mobile phone billing where supported.
+
+MEMBERSHIP UX
+Upgrade flow should feel:
+- Elegant
+- Fast
+- Native
+- Minimal
+- Trustworthy
+
+Avoid:
+- Aggressive upsells
+- Fake scarcity
+- Loud conversion popups
+- Cheap ecommerce feeling
+
+SUBSCRIPTION STRUCTURE
+Purchasable memberships:
+- Aday
+- Üye
+- Müdavim
+
+Seçkin cannot be directly purchased.
+
+Users can:
+- Upgrade
+- Downgrade
+- Restore purchases
+- Cancel easily
+
+MEMBERSHIP PERMISSIONS
+
+Aday:
+- Limited daily AI usage
+- Limited posting
+- Limited room access
+- Cannot create events
+- Cannot freely DM users
+
+Üye:
+- More AI usage
+- Standard room participation
+- Can join events
+- Limited room creation
+
+Müdavim:
+- Higher AI limits
+- Priority visibility
+- Can host some events
+- Better networking tools
+- Access to premium rooms
+
+Seçkin:
+- Invite-only or reputation-earned
+- Highest trust privileges
+- Can host verified events
+- Access to exclusive rooms
+- Concierge privileges
+- Early feature access
+
+All permissions and limits MUST be enforced server-side.
+Never trust client-side storage for permissions or token limits.
+
+TRUST & QUALITY SYSTEM
+
+Create a reputation-based quality system.
+
+Every member has:
+- Trust score
+- Reputation level
+- Community quality rating
+
+Increase trust score with:
+- Helpful discussions
+- Event participation
+- High-quality posts
+- Long-term good behavior
+- Positive moderation history
+- Valuable contributions
+
+Decrease trust score with:
+- Spam
+- Toxicity
+- Harassment
+- Repeated reports
+- Low-effort content
+- Aggressive behavior
+- Moderator warnings
+
+Higher trust unlocks:
+- Better visibility
+- Event hosting
+- Room creation
+- Seçkin eligibility
+- Networking access
+
+ANTI-SPAM & MODERATION
+
+Build strong moderation systems:
+- AI moderation
+- Profanity filtering
+- Spam detection
+- Duplicate message detection
+- Cooldown systems
+- Soft mute system
+- Shadow moderation tools
+- Reporting system
+- Human moderation dashboard
+- Admin review tools
+- Trust score monitoring
+- Moderation logs
+
+The moderation tone should remain elegant and discreet.
+Never publicly shame users.
+
+AI CONCIERGE SYSTEM
+
+Every club should have its own specialized AI concierge.
+
+Examples:
+- Havacılık → calm aviation expert
+- Viski → refined sommelier
+- Kitap → intellectual literary curator
+- Fitness → disciplined coach
+- Denizcilik → experienced sailor personality
+
+Capabilities:
+- Welcome members
+- Recommend rooms
+- Introduce compatible members
+- Summarize discussions
+- Suggest events
+- Maintain quality atmosphere
+- Revive inactive rooms naturally
+- Recommend content intelligently
+
+AI should feel subtle and sophisticated.
+Never spam users.
+AI messages should visually appear slightly different from user messages.
+
+REAL-WORLD PRESTIGE LAYER
+
+ORUN must evolve into a real-world lifestyle club.
+
+Features:
+- Private dinners
+- Whisky tastings
+- Sailing meetups
+- Motorcycle rides
+- Book salons
+- Aviation gatherings
+- Invite-only events
+- Curated networking evenings
+
+Rules:
+- Quality over quantity
+- Event applications
+- Host approval system
+- AI compatibility recommendations
+
+Real-world participation increases trust score.
+
+Add:
+- Event badges
+- Verified host system
+- Optional identity verification
+- Secure attendee approval flow
+- Privacy-focused location sharing
+
+SOCIAL EXPERIENCE RULES
+
+The platform must feel:
+- Calm
+- Intelligent
+- Safe
+- Sophisticated
+- Mature
+- Non-addictive
+
+Avoid:
+- Infinite dopamine scrolling
+- Ragebait mechanics
+- Public follower obsession
+- Viral culture
+- Cheap gamification
+- Loud interfaces
+
+Focus on:
+- Meaningful conversations
+- Taste
+- Expertise
+- Culture
+- Real relationships
+- Intellectual curiosity
+
+LEGAL & SAFETY
+
+Build comprehensive legal protection:
+- Terms of service
+- Privacy policy
+- Community guidelines
+- Consent system
+- Age restrictions
+- Alcohol/tobacco disclaimers where required
+- Event participation liability protections
+- Reporting workflows
+- Admin enforcement tools
+
+Protect platform owners strongly from legal risk.
+
+AUTH & SECURITY
+
+Implement:
+- Real authentication
+- JWT session system
+- Secure backend APIs
+- Role-based permissions
+- Database-backed entitlements
+- Rate limiting
+- API abuse prevention
+- Secure environment variables
+- Production CORS whitelist
+- Audit logging
+
+Never expose OpenAI keys client-side.
+
+BACKEND PAYMENT REQUIREMENTS
+
+Implement:
+- RevenueCat entitlement verification
+- Secure subscription state sync
+- Fraud prevention
+- Server-side membership validation
+- Subscription renewal handling
+- Grace period handling
+
+APP STORE READINESS
+
+Prepare production-ready:
+- Bundle identifiers
+- Build numbers
+- App icons
+- Splash screens
+- Privacy manifest
+- App Store assets
+- Production configs
+- Error logging
+- Analytics
+- Crash reporting
+
+DESIGN DETAILS
+
+Use:
+- Elegant typography
+- Soft blur effects
+- Minimal transitions
+- Spacious layouts
+- Quiet luxury aesthetics
+- Premium onboarding
+- Refined empty states
+
+Avoid:
+- Neon colors
+- Aggressive animations
+- Gaming aesthetics
+- Visual clutter
+
+The app should feel timeless, premium and emotionally calming.
+
+FINAL PRODUCT GOAL
+
+ORUN should become:
+“A premium AI-assisted private social club ecosystem for cultured, intelligent and high-quality people.”
+
+It should feel exclusive but welcoming.
+Sophisticated but warm.
+Minimal but emotionally rich.
+Digital but deeply connected to real life.
