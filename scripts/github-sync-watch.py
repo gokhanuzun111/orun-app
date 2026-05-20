@@ -44,10 +44,13 @@ def sync(local_sha, gh_sha):
     print(f'[github-sync] Syncing: {local_sha[:8]} — {local_msg}')
 
     tracked = git('ls-files').splitlines()
+    EXCLUDED = {'.replit', 'replit.nix'}
     tree_items = []
     errors = 0
 
     for rel_path in tracked:
+        if rel_path in EXCLUDED:
+            continue
         full_path = os.path.join(BASE, rel_path)
         if not os.path.isfile(full_path):
             continue

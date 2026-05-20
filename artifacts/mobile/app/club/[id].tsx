@@ -31,7 +31,7 @@ export default function ClubDetailScreen() {
   const colors = useColors();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { user, joinClub, leaveClub, joinWaitlist, leaveWaitlist, isOnWaitlist, rsvpEvent, unrsvpEvent, isRsvped } = useApp();
+  const { user, joinClub, leaveClub, joinWaitlist, leaveWaitlist, isOnWaitlist } = useApp();
 
   const [emailInput, setEmailInput] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -376,65 +376,34 @@ export default function ClubDetailScreen() {
                 <Feather name="calendar" size={11} color={colors.mutedForeground} />
                 <Text style={[styles.sectionTitle, { color: colors.mutedForeground }]}>ETKİNLİKLER</Text>
               </View>
-              {MASTER_EVENTS.map(evt => {
-                const rsvped = isRsvped(evt.id);
-                const displayCount = evt.attendeeCount + (rsvped ? 1 : 0);
-                const handleRsvp = () => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                  if (rsvped) {
-                    unrsvpEvent(evt.id);
-                  } else {
-                    rsvpEvent(evt.id);
-                  }
-                };
-                return (
-                  <View
-                    key={evt.id}
-                    style={[
-                      styles.eventCard,
-                      { backgroundColor: colors.card, borderColor: rsvped ? colors.primary : colors.border, borderRadius: colors.radius },
-                    ]}
-                  >
-                    <Text style={[styles.eventTitle, { color: colors.foreground }]}>{evt.title}</Text>
-                    <Text style={[styles.eventDescription, { color: colors.mutedForeground }]}>{evt.description}</Text>
-                    <View style={styles.eventMeta}>
-                      <View style={styles.eventMetaRow}>
-                        <Feather name="calendar" size={12} color={colors.mutedForeground} />
-                        <Text style={[styles.eventMetaText, { color: colors.mutedForeground }]}>{evt.date}</Text>
-                      </View>
-                      <View style={styles.eventMetaRow}>
-                        <Feather name="map-pin" size={12} color={colors.mutedForeground} />
-                        <Text style={[styles.eventMetaText, { color: colors.mutedForeground }]}>{evt.location}</Text>
-                      </View>
-                      <View style={styles.eventMetaRow}>
-                        <Feather name="users" size={12} color={colors.primary} />
-                        <Text style={[styles.eventAttendees, { color: colors.primary }]}>
-                          {displayCount} katılımcı
-                        </Text>
-                      </View>
+              {MASTER_EVENTS.map(evt => (
+                <View
+                  key={evt.id}
+                  style={[
+                    styles.eventCard,
+                    { backgroundColor: colors.card, borderColor: colors.border, borderRadius: colors.radius },
+                  ]}
+                >
+                  <Text style={[styles.eventTitle, { color: colors.foreground }]}>{evt.title}</Text>
+                  <Text style={[styles.eventDescription, { color: colors.mutedForeground }]}>{evt.description}</Text>
+                  <View style={styles.eventMeta}>
+                    <View style={styles.eventMetaRow}>
+                      <Feather name="calendar" size={12} color={colors.mutedForeground} />
+                      <Text style={[styles.eventMetaText, { color: colors.mutedForeground }]}>{evt.date}</Text>
                     </View>
-                    <View style={styles.eventRsvpRow}>
-                      <Pressable
-                        testID={`rsvp-btn-${evt.id}`}
-                        onPress={handleRsvp}
-                        style={[
-                          styles.rsvpBtn,
-                          {
-                            backgroundColor: rsvped ? colors.primary : "transparent",
-                            borderColor: rsvped ? colors.primary : colors.border,
-                            borderRadius: colors.radius,
-                          },
-                        ]}
-                      >
-                        {rsvped && <Feather name="check" size={12} color={colors.background} style={{ marginRight: 5 }} />}
-                        <Text style={[styles.rsvpBtnText, { color: rsvped ? colors.background : colors.foreground }]}>
-                          {rsvped ? "Vazgeç" : "Katıl"}
-                        </Text>
-                      </Pressable>
+                    <View style={styles.eventMetaRow}>
+                      <Feather name="map-pin" size={12} color={colors.mutedForeground} />
+                      <Text style={[styles.eventMetaText, { color: colors.mutedForeground }]}>{evt.location}</Text>
+                    </View>
+                    <View style={styles.eventMetaRow}>
+                      <Feather name="users" size={12} color={colors.primary} />
+                      <Text style={[styles.eventAttendees, { color: colors.primary }]}>
+                        {evt.attendeeCount} katılımcı
+                      </Text>
                     </View>
                   </View>
-                );
-              })}
+                </View>
+              ))}
             </View>
 
             <View style={[styles.divider, { backgroundColor: colors.border }]} />
@@ -823,23 +792,6 @@ const styles = StyleSheet.create({
   eventAttendees: {
     fontFamily: "Inter_600SemiBold",
     fontSize: 12,
-  },
-  eventRsvpRow: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    marginTop: 4,
-  },
-  rsvpBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderWidth: 1,
-  },
-  rsvpBtnText: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 12,
-    letterSpacing: 0.2,
   },
   weeklySummaryCard: {
     padding: 16,

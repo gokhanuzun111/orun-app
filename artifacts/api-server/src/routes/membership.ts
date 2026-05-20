@@ -80,7 +80,7 @@ router.post("/tokens/use", requireAuth, async (req: AuthRequest, res) => {
 });
 
 router.get("/rooms/:roomId/access", requireAuth, async (req: AuthRequest, res) => {
-  const { roomId } = req.params;
+  const roomId = String(req.params.roomId);
   const user = req.user!;
   const access = await db.query.roomAccessTable.findFirst({
     where: and(eq(roomAccessTable.userId, user.id), eq(roomAccessTable.roomId, roomId)),
@@ -101,7 +101,7 @@ router.post("/rooms/:roomId/join", requireAuth, async (req: AuthRequest, res) =>
   const parsed = schema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "clubId gerekli" });
 
-  const { roomId } = req.params;
+  const roomId = String(req.params.roomId);
   const { clubId } = parsed.data;
   const user = req.user!;
 
@@ -128,7 +128,7 @@ router.post("/rooms/:roomId/waitlist", requireAuth, async (req: AuthRequest, res
   const parsed = schema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "clubId gerekli" });
 
-  const { roomId } = req.params;
+  const roomId = String(req.params.roomId);
   const { clubId } = parsed.data;
   const user = req.user!;
 
@@ -147,7 +147,7 @@ router.post("/rooms/:roomId/waitlist", requireAuth, async (req: AuthRequest, res
 });
 
 router.delete("/rooms/:roomId/waitlist", requireAuth, async (req: AuthRequest, res) => {
-  const { roomId } = req.params;
+  const roomId = String(req.params.roomId);
   await db.delete(roomWaitlistTable).where(
     and(eq(roomWaitlistTable.userId, req.userId!), eq(roomWaitlistTable.roomId, roomId)),
   );
