@@ -17,17 +17,11 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AppProvider, useApp } from "@/context/AppContext";
-import { initializeRevenueCat, SubscriptionProvider } from "@/lib/revenuecat";
+import { SubscriptionProvider } from "@/lib/revenuecat";
 
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
-
-try {
-  initializeRevenueCat();
-} catch (err: any) {
-  if (__DEV__) console.warn("RevenueCat başlatılamadı:", err?.message);
-}
 
 function RootLayoutNav() {
   const { isOnboarded, isLoading } = useApp();
