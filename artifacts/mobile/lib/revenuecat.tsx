@@ -1,44 +1,36 @@
 import React, { createContext, useContext } from "react";
-import { Platform } from "react-native";
 import Purchases from "react-native-purchases";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import Constants from "expo-constants";
+import {
+  ENTITLEMENT_TO_LEVEL,
+  initRevenueCat,
+  isRevenueCatSupported,
+} from "@/services/revenuecat";
 
-const REVENUECAT_TEST_API_KEY = process.env.EXPO_PUBLIC_REVENUECAT_TEST_API_KEY;
-const REVENUECAT_IOS_API_KEY = process.env.EXPO_PUBLIC_REVENUECAT_IOS_API_KEY;
-const REVENUECAT_ANDROID_API_KEY = process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY;
-
-export const REVENUECAT_ENTITLEMENT_IDENTIFIER = "premium";
-
-function getRevenueCatApiKey() {
-  if (!REVENUECAT_TEST_API_KEY) {
-    throw new Error("RevenueCat API anahtarları bulunamadı");
-  }
-  if (__DEV__ || Platform.OS === "web" || Constants.executionEnvironment === "storeClient") {
-    return REVENUECAT_TEST_API_KEY;
-  }
-  if (Platform.OS === "ios" && REVENUECAT_IOS_API_KEY) return REVENUECAT_IOS_API_KEY;
-  if (Platform.OS === "android" && REVENUECAT_ANDROID_API_KEY) return REVENUECAT_ANDROID_API_KEY;
-  return REVENUECAT_TEST_API_KEY;
-}
+export const REVENUECAT_ENTITLEMENTS = Object.keys(ENTITLEMENT_TO_LEVEL);
 
 export function initializeRevenueCat() {
-  const apiKey = getRevenueCatApiKey();
-  Purchases.setLogLevel(Purchases.LOG_LEVEL.DEBUG);
-  Purchases.configure({ apiKey });
+  if (!isRevenueCatSupported()) return;
+  initRevenueCat().catch(err => {
+    if (__DEV__) console.warn("RevenueCat init failed:", err?.message);
+  });
 }
 
 function useSubscriptionContext() {
+  const enabled = isRevenueCatSupported();
+
   const customerInfoQuery = useQuery({
     queryKey: ["revenuecat", "customer-info"],
     queryFn: () => Purchases.getCustomerInfo(),
     staleTime: 60_000,
+    enabled,
   });
 
   const offeringsQuery = useQuery({
     queryKey: ["revenuecat", "offerings"],
     queryFn: () => Purchases.getOfferings(),
     staleTime: 300_000,
+    enabled,
   });
 
   const purchaseMutation = useMutation({
@@ -54,8 +46,8 @@ function useSubscriptionContext() {
     onSuccess: () => customerInfoQuery.refetch(),
   });
 
-  const isSubscribed =
-    customerInfoQuery.data?.entitlements.active?.[REVENUECAT_ENTITLEMENT_IDENTIFIER] !== undefined;
+  const active = customerInfoQuery.data?.entitlements.active ?? {};
+  const isSubscribed = REVENUECAT_ENTITLEMENTS.some(k => active[k] !== undefined);
 
   return {
     customerInfo: customerInfoQuery.data,

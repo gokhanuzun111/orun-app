@@ -3,6 +3,14 @@ import { Platform } from "react-native";
 import { type UserProfile, MOCK_USER, type MembershipLevel } from "@/constants/data";
 import * as authService from "@/services/auth";
 import { getStoredToken } from "@/services/api";
+import {
+  addCustomerInfoListener,
+  entitlementsToLevel,
+  identifyRevenueCat,
+  initRevenueCat,
+  isRevenueCatSupported,
+  logoutRevenueCat,
+} from "@/services/revenuecat";
 
 export interface WaitlistEntry {
   clubId: string;
@@ -140,12 +148,27 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setUser(profile);
       setIsOnboarded(true);
       await loadAndSetRsvps(profile.id);
+      if (isRevenueCatSupported()) {
+        try {
+          const info = await identifyRevenueCat(profile.id);
+          const rcLevel = entitlementsToLevel(info);
+          setUser(prev => ({
+            ...prev,
+            membershipLevel: Math.max(profile.membershipLevel, rcLevel) as MembershipLevel,
+          }));
+        } catch (err: any) {
+          if (__DEV__) console.warn("RC identify failed:", err?.message);
+        }
+      }
     }
   }, [loadAndSetRsvps]);
 
   useEffect(() => {
     const init = async () => {
       try {
+        if (isRevenueCatSupported()) {
+          try { await initRevenueCat(); } catch {}
+        }
         const token = await getStoredToken();
         if (token) {
           await refreshUser();
@@ -157,6 +180,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     };
     init();
   }, [refreshUser]);
+
+  useEffect(() => {
+    if (!isRevenueCatSupported()) return;
+    const unsub = addCustomerInfoListener(info => {
+      const rcLevel = entitlementsToLevel(info);
+      setUser(prev => {
+        if (prev.id === MOCK_USER.id) return prev;
+        return { ...prev, membershipLevel: rcLevel as MembershipLevel };
+      });
+    });
+    return unsub;
+  }, []);
 
   const loginAsAdmin = useCallback(async () => {
     const apiUser = await authService.login("admin@orun.app", process.env.EXPO_PUBLIC_ADMIN_PASSWORD ?? "orun-admin-2024");
@@ -184,6 +219,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(async () => {
     const userId = rsvpUserIdRef.current;
     await authService.logout();
+    await logoutRevenueCat();
     if (userId) await clearRsvps(userId);
     rsvpUserIdRef.current = null;
     setUser(MOCK_USER);

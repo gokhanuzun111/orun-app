@@ -6,12 +6,14 @@ import { Linking, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, Vie
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import { useApp } from "@/context/AppContext";
+import { MEMBERSHIP_LABELS } from "@/constants/data";
+import { isRevenueCatSupported, presentCustomerCenter } from "@/services/revenuecat";
 
 export default function SettingsScreen() {
   const colors = useColors();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { logout } = useApp();
+  const { logout, user } = useApp();
   const [notifications, setNotifications] = useState(true);
   const [roomInvites, setRoomInvites] = useState(true);
   const [aiSuggestions, setAiSuggestions] = useState(true);
@@ -57,9 +59,21 @@ export default function SettingsScreen() {
           label: "Üyelik",
           icon: "award",
           type: "nav",
-          sublabel: "ÜYE",
+          sublabel: MEMBERSHIP_LABELS[user.membershipLevel],
           onPress: () => router.push("/profile/membership"),
         },
+        ...(isRevenueCatSupported()
+          ? [{
+              id: "manage-subscription",
+              label: "Aboneliği Yönet",
+              icon: "credit-card" as FeatherName,
+              type: "nav" as RowType,
+              sublabel: "İptal, yenileme, fatura geçmişi",
+              onPress: async () => {
+                try { await presentCustomerCenter(); } catch {}
+              },
+            }]
+          : []),
         {
           id: "delete-account",
           label: "Hesabı Sil",
@@ -186,14 +200,14 @@ export default function SettingsScreen() {
           label: "Gizlilik politikası",
           icon: "lock",
           type: "nav",
-          onPress: () => Linking.openURL("https://orunsociety.com/privacy"),
+          onPress: () => Linking.openURL(`https://${process.env.EXPO_PUBLIC_DOMAIN}/legal/privacy`),
         },
         {
           id: "terms",
           label: "Kullanım koşulları",
           icon: "file-text",
           type: "nav",
-          onPress: () => Linking.openURL("https://orunsociety.com/terms"),
+          onPress: () => Linking.openURL(`https://${process.env.EXPO_PUBLIC_DOMAIN}/legal/terms`),
         },
       ],
     },

@@ -1,11 +1,12 @@
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React from "react";
-import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useState } from "react";
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MEMBERSHIP_LABELS, type MembershipLevel } from "@/constants/data";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
+import { isRevenueCatSupported, presentPaywallForLevel } from "@/services/revenuecat";
 
 const TIERS: {
   level: MembershipLevel;
@@ -35,10 +36,10 @@ const TIERS: {
   },
   {
     level: 3,
-    price: "Yalnızca davet",
+    price: "₺1.399 / ay",
     tokens: "100.000 AI token / ay",
     perks: ["Her şeye tam erişim", "100.000 AI token / ay", "Özel etkinlik davetleri", "Seçilmiş tanışmalar", "Tüm kulüpler"],
-    note: "Kazanılır ya da davet edilir. Satın alınamaz.",
+    note: "Önce MÜDAVİM ol ve saygınlığını kazan. Uygunluk AI tarafından değerlendirilir.",
   },
 ];
 
@@ -46,7 +47,39 @@ export default function MembershipScreen() {
   const colors = useColors();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { user } = useApp();
+  const { user, refreshUser } = useApp();
+  const [busyLevel, setBusyLevel] = useState<MembershipLevel | null>(null);
+
+  const handleUpgrade = async (targetLevel: MembershipLevel) => {
+    if (targetLevel === 0 || targetLevel === undefined) return;
+    if (targetLevel === 3 && user.membershipLevel < 2) {
+      Alert.alert(
+        "SEÇKİN için önce MÜDAVİM olmalısın",
+        "SEÇKİN kademesi, MÜDAVİM üyelerin saygınlık kazandıktan sonra geçebileceği özel bir kademedir. Önce MÜDAVİM'e geç ve topluluğa katkı sağla.",
+      );
+      return;
+    }
+    if (!isRevenueCatSupported()) {
+      Alert.alert("Yakında", "Ödeme akışı yalnızca iOS uygulamasında aktiftir.");
+      return;
+    }
+    setBusyLevel(targetLevel);
+    try {
+      const result = await presentPaywallForLevel(targetLevel as 1 | 2 | 3);
+      if (result === "purchased" || result === "restored") {
+        await refreshUser();
+        Alert.alert("Üyeliğin aktif", `${MEMBERSHIP_LABELS[targetLevel]} kademesine geçtin.`);
+      } else if (result === "error") {
+        Alert.alert("Hata", "Ödeme akışı başlatılamadı. Lütfen tekrar dene.");
+      }
+    } catch (e: any) {
+      if (!e?.userCancelled) {
+        Alert.alert("Hata", e?.message ?? "Bir sorun oluştu.");
+      }
+    } finally {
+      setBusyLevel(null);
+    }
+  };
 
   const topPadding = Platform.OS === "web" ? 67 : insets.top;
 
@@ -125,13 +158,19 @@ export default function MembershipScreen() {
                 <Text style={[styles.note, { color: colors.mutedForeground }]}>{tier.note}</Text>
               )}
 
-              {!isCurrent && tier.level !== 3 && tier.level > user.membershipLevel && (
+              {!isCurrent && tier.level > user.membershipLevel && (
                 <Pressable
-                  style={[styles.upgradeBtn, { backgroundColor: "#000", borderRadius: colors.radius - 2 }]}
-                  onPress={() => router.push("/subscription")}
+                  style={[
+                    styles.upgradeBtn,
+                    { backgroundColor: "#000", borderRadius: colors.radius - 2, opacity: busyLevel === tier.level ? 0.6 : 1 },
+                  ]}
+                  disabled={busyLevel !== null}
+                  onPress={() => handleUpgrade(tier.level)}
                 >
                   <Text style={styles.upgradeBtnText}>
-                     ile {MEMBERSHIP_LABELS[tier.level]}'e Yükselt
+                    {busyLevel === tier.level
+                      ? "Açılıyor…"
+                      : `${MEMBERSHIP_LABELS[tier.level]}'e Yükselt`}
                   </Text>
                 </Pressable>
               )}
