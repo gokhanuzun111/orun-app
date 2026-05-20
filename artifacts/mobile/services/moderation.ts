@@ -1,7 +1,8 @@
 import { apiFetch } from "./api";
 
 export async function submitReport(data: {
-  reportedUserId: number;
+  reportedUserId?: number;
+  reportedHandle?: string;
   roomId?: string;
   clubId?: string;
   reason: string;
