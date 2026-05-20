@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
+import { recordConsent } from "@/services/moderation";
 
 export default function ConsentScreen() {
   const colors = useColors();
@@ -21,8 +22,15 @@ export default function ConsentScreen() {
 
   const allChecked = tosChecked && kvkkChecked && ageChecked;
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (!allChecked) return;
+    try {
+      await Promise.all([
+        recordConsent("tos", "1.0"),
+        recordConsent("kvkk", "1.0"),
+        recordConsent("gizlilik", "1.0"),
+      ]);
+    } catch {}
     router.push("/onboarding/interests");
   };
 

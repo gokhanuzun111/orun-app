@@ -1,10 +1,11 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
-import { type UserProfile, MOCK_USER, ADMIN_USER, type MembershipLevel } from "@/constants/data";
+import { type UserProfile, MOCK_USER, type MembershipLevel } from "@/constants/data";
+import * as authService from "@/services/auth";
+import { getStoredToken } from "@/services/api";
 
 export interface WaitlistEntry {
   clubId: string;
-  email: string;
+  roomId: string;
   joinedAt: string;
 }
 
@@ -25,11 +26,29 @@ interface AppContextValue {
   joinWaitlist: (clubId: string, email: string) => void;
   leaveWaitlist: (clubId: string) => void;
   isOnWaitlist: (clubId: string) => boolean;
+  refreshUser: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
 
 const OLD_DATE = "2025-01-01T00:00:00.000Z";
+
+function apiUserToProfile(apiUser: authService.ApiUser): UserProfile {
+  return {
+    id: String(apiUser.id),
+    handle: apiUser.handle,
+    bio: apiUser.bio,
+    membershipLevel: apiUser.membershipLevel as MembershipLevel,
+    joinedClubs: apiUser.joinedClubs.length > 0 ? apiUser.joinedClubs : ["master"],
+    clubJoinDates: Object.keys(apiUser.clubJoinDates).length > 0
+      ? apiUser.clubJoinDates
+      : { master: OLD_DATE },
+    reputation: apiUser.reputation,
+    interests: apiUser.interests,
+    memberSince: apiUser.memberSince,
+    isAdmin: apiUser.isAdmin,
+  } as UserProfile;
+}
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile>(MOCK_USER);
@@ -38,75 +57,48 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([]);
 
+  const refreshUser = useCallback(async () => {
+    const apiUser = await authService.getMe();
+    if (apiUser) {
+      setUser(apiUserToProfile(apiUser));
+      setIsOnboarded(true);
+    }
+  }, []);
+
   useEffect(() => {
-    const loadState = async () => {
+    const init = async () => {
       try {
-        const stored = await AsyncStorage.getItem("@orun:user");
-        const onboarded = await AsyncStorage.getItem("@orun:onboarded");
-        const storedWaitlist = await AsyncStorage.getItem("@orun:waitlist");
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          if (!parsed.clubJoinDates) parsed.clubJoinDates = {};
-          if (!parsed.joinedClubs.includes("master")) {
-            parsed.joinedClubs = ["master", ...parsed.joinedClubs];
-            parsed.clubJoinDates["master"] = OLD_DATE;
-          }
-          setUser(parsed);
+        const token = await getStoredToken();
+        if (token) {
+          await refreshUser();
         }
-        if (onboarded === "true") setIsOnboarded(true);
-        if (storedWaitlist) setWaitlist(JSON.parse(storedWaitlist));
       } catch {
       } finally {
         setIsLoading(false);
       }
     };
-    loadState();
-  }, []);
+    init();
+  }, [refreshUser]);
 
   const loginAsAdmin = useCallback(async () => {
-    setUser(ADMIN_USER);
+    const apiUser = await authService.login("admin@orun.app", process.env.EXPO_PUBLIC_ADMIN_PASSWORD ?? "orun-admin-2024");
+    setUser(apiUserToProfile(apiUser));
     setIsOnboarded(true);
-    await AsyncStorage.setItem("@orun:user", JSON.stringify(ADMIN_USER));
-    await AsyncStorage.setItem("@orun:onboarded", "true");
   }, []);
 
-  const loginWithEmail = useCallback(async (email: string, _password: string) => {
-    const stored = await AsyncStorage.getItem("@orun:accounts");
-    const accounts: Record<string, UserProfile> = stored ? JSON.parse(stored) : {};
-    const found = Object.values(accounts).find(a => (a as any).email === email.toLowerCase());
-    if (!found) throw new Error("Bu e-posta ile kayıtlı hesap bulunamadı.");
-    setUser(found);
+  const loginWithEmail = useCallback(async (email: string, password: string) => {
+    const apiUser = await authService.login(email, password);
+    setUser(apiUserToProfile(apiUser));
     setIsOnboarded(true);
-    await AsyncStorage.setItem("@orun:user", JSON.stringify(found));
-    await AsyncStorage.setItem("@orun:onboarded", "true");
   }, []);
 
-  const registerWithEmail = useCallback(async (name: string, email: string, _password: string) => {
-    const stored = await AsyncStorage.getItem("@orun:accounts");
-    const accounts: Record<string, any> = stored ? JSON.parse(stored) : {};
-    const exists = Object.values(accounts).some(a => (a as any).email === email.toLowerCase());
-    if (exists) throw new Error("Bu e-posta zaten kayıtlı.");
-    const id = `usr_${Date.now()}`;
-    const handle = `@${name.toLowerCase().replace(/\s+/g, "").slice(0, 16)}`;
-    const newUser: UserProfile & { email: string } = {
-      id,
-      handle,
-      bio: "",
-      membershipLevel: 0 as MembershipLevel,
-      joinedClubs: ["master"],
-      clubJoinDates: { master: OLD_DATE },
-      reputation: 0,
-      interests: [],
-      memberSince: new Date().getFullYear().toString(),
-      email: email.toLowerCase(),
-    };
-    accounts[id] = newUser;
-    await AsyncStorage.setItem("@orun:accounts", JSON.stringify(accounts));
-    setUser(newUser);
+  const registerWithEmail = useCallback(async (name: string, email: string, password: string) => {
+    const apiUser = await authService.register(name, email, password);
+    setUser(apiUserToProfile(apiUser));
   }, []);
 
   const logout = useCallback(async () => {
-    await AsyncStorage.multiRemove(["@orun:user", "@orun:onboarded"]);
+    await authService.logout();
     setUser(MOCK_USER);
     setIsOnboarded(false);
     setSelectedInterests([]);
@@ -114,46 +106,28 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const completeOnboarding = useCallback(async (handle: string, bio: string, interests: string[]) => {
-    const now = new Date().toISOString();
-    const initialClubs = interests.slice(0, 5);
-    const clubJoinDates: Record<string, string> = { master: OLD_DATE };
-    for (const clubId of initialClubs) {
-      clubJoinDates[clubId] = now;
-    }
-    const updatedUser: UserProfile = {
-      ...user,
-      handle: handle.startsWith("@") ? handle : `@${handle}`,
-      bio,
+    const apiUser = await authService.updateProfile({ handle, bio, interests });
+    const profileUser: UserProfile = {
+      ...apiUserToProfile(apiUser),
       membershipLevel: 1 as MembershipLevel,
-      joinedClubs: ["master", ...initialClubs],
-      clubJoinDates,
-      reputation: 0,
-      interests,
-      memberSince: new Date().getFullYear().toString(),
+      joinedClubs: ["master", ...interests.slice(0, 5)],
+      clubJoinDates: {
+        master: OLD_DATE,
+        ...Object.fromEntries(interests.slice(0, 5).map(id => [id, new Date().toISOString()])),
+      },
     };
-    setUser(updatedUser);
+    setUser(profileUser);
     setIsOnboarded(true);
-    await AsyncStorage.setItem("@orun:user", JSON.stringify(updatedUser));
-    await AsyncStorage.setItem("@orun:onboarded", "true");
-    const stored = await AsyncStorage.getItem("@orun:accounts");
-    const accounts: Record<string, any> = stored ? JSON.parse(stored) : {};
-    accounts[updatedUser.id] = updatedUser;
-    await AsyncStorage.setItem("@orun:accounts", JSON.stringify(accounts));
-  }, [user]);
+  }, []);
 
   const joinClub = useCallback((clubId: string) => {
     setUser(prev => {
       if (prev.joinedClubs.includes(clubId)) return prev;
-      const updated: UserProfile = {
+      return {
         ...prev,
         joinedClubs: [...prev.joinedClubs, clubId],
-        clubJoinDates: {
-          ...prev.clubJoinDates,
-          [clubId]: new Date().toISOString(),
-        },
+        clubJoinDates: { ...prev.clubJoinDates, [clubId]: new Date().toISOString() },
       };
-      AsyncStorage.setItem("@orun:user", JSON.stringify(updated));
-      return updated;
     });
   }, []);
 
@@ -161,34 +135,23 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setUser(prev => {
       const updatedDates = { ...prev.clubJoinDates };
       delete updatedDates[clubId];
-      const updated: UserProfile = {
+      return {
         ...prev,
         joinedClubs: prev.joinedClubs.filter(id => id !== clubId),
         clubJoinDates: updatedDates,
       };
-      AsyncStorage.setItem("@orun:user", JSON.stringify(updated));
-      return updated;
     });
   }, []);
 
-  const joinWaitlist = useCallback((clubId: string, email: string) => {
+  const joinWaitlist = useCallback((clubId: string, _email: string) => {
     setWaitlist(prev => {
       if (prev.some(e => e.clubId === clubId)) return prev;
-      const updated = [
-        ...prev,
-        { clubId, email, joinedAt: new Date().toISOString() },
-      ];
-      AsyncStorage.setItem("@orun:waitlist", JSON.stringify(updated));
-      return updated;
+      return [...prev, { clubId, roomId: clubId, joinedAt: new Date().toISOString() }];
     });
   }, []);
 
   const leaveWaitlist = useCallback((clubId: string) => {
-    setWaitlist(prev => {
-      const updated = prev.filter(e => e.clubId !== clubId);
-      AsyncStorage.setItem("@orun:waitlist", JSON.stringify(updated));
-      return updated;
-    });
+    setWaitlist(prev => prev.filter(e => e.clubId !== clubId));
   }, []);
 
   const isOnWaitlist = useCallback(
@@ -215,6 +178,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         joinWaitlist,
         leaveWaitlist,
         isOnWaitlist,
+        refreshUser,
       }}
     >
       {children}

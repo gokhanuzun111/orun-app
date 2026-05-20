@@ -3,9 +3,10 @@
     "name": "ORUN",
     "slug": "mobile",
     "version": "1.0.0",
+    "runtimeVersion": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mobile",
+    "scheme": "orun",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
@@ -14,9 +15,22 @@
       "backgroundColor": "#0A0A0A"
     },
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "bundleIdentifier": "com.orun.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSCameraUsageDescription": "ORUN profil fotoğrafı için kameranıza erişmek istiyor.",
+        "NSPhotoLibraryUsageDescription": "ORUN profil fotoğrafı için fotoğraf kütüphanenize erişmek istiyor.",
+        "NSMicrophoneUsageDescription": "ORUN sesli mesajlar için mikrofonunuza erişmek istiyor.",
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
-    "android": {},
+    "android": {
+      "package": "com.orun.app"
+    },
     "web": {
       "favicon": "./assets/images/icon.png",
       "name": "ORUN",
@@ -34,11 +48,17 @@
         }
       ],
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      "react-native-purchases"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "orun-app"
+      }
     }
   }
 }

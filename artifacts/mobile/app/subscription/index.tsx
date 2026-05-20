@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Platform,
   Pressable,
   ScrollView,
@@ -13,6 +14,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
+import { useSubscription } from "@/lib/revenuecat";
 
 interface Tier {
   id: string;
@@ -21,9 +23,9 @@ interface Tier {
   period: string;
   tag: string | null;
   features: string[];
-  cta: string;
   locked: boolean;
   highlight: boolean;
+  rcPackageId: string | null;
 }
 
 const TIERS: Tier[] = [
@@ -39,9 +41,9 @@ const TIERS: Tier[] = [
       "Oda okuma erişimi",
       "Bekleme listesine katılım",
     ],
-    cta: "Mevcut Plan",
     locked: false,
     highlight: false,
+    rcPackageId: null,
   },
   {
     id: "uye",
@@ -56,9 +58,9 @@ const TIERS: Tier[] = [
       "Etkinlik RSVP önceliği",
       "Üye rozeti",
     ],
-    cta: "ÜYE Ol",
     locked: false,
     highlight: true,
+    rcPackageId: "$rc_monthly",
   },
   {
     id: "aktif",
@@ -74,9 +76,9 @@ const TIERS: Tier[] = [
       "Öncelikli destek",
       "MÜDAVİM rozeti",
     ],
-    cta: "MÜDAVİM Ol",
     locked: false,
     highlight: false,
+    rcPackageId: "$rc_monthly",
   },
   {
     id: "seckin",
@@ -89,9 +91,9 @@ const TIERS: Tier[] = [
       "100.000 AI token / ay",
       "Özel etkinlik davetleri",
     ],
-    cta: "Daveti Bekle",
     locked: true,
     highlight: false,
+    rcPackageId: null,
   },
 ];
 
@@ -100,18 +102,38 @@ export default function SubscriptionScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [selected, setSelected] = useState<string>("uye");
-  const [loading, setLoading] = useState(false);
+  const { offerings, purchase, isPurchasing, restore, isRestoring } = useSubscription();
 
   const topPadding = Platform.OS === "web" ? 56 : insets.top;
   const bottomPadding = Platform.OS === "web" ? 34 : insets.bottom;
 
   const handleSubscribe = async (tier: Tier) => {
-    if (tier.locked || tier.id === "aday") return;
+    if (tier.locked || tier.id === "aday" || !tier.rcPackageId) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setLoading(true);
-    await new Promise(r => setTimeout(r, 1200));
-    setLoading(false);
-    router.back();
+
+    try {
+      const pkgs = offerings?.current?.availablePackages ?? [];
+      const pkg = pkgs.find(p => p.identifier === tier.rcPackageId) ?? pkgs[0];
+      if (!pkg) {
+        Alert.alert("Hata", "Ödeme paketi bulunamadı. Lütfen tekrar deneyin.");
+        return;
+      }
+      await purchase(pkg);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      router.back();
+    } catch (err: any) {
+      if (err?.userCancelled) return;
+      Alert.alert("Ödeme Başarısız", err?.message ?? "Bir sorun oluştu. Lütfen tekrar deneyin.");
+    }
+  };
+
+  const handleRestore = async () => {
+    try {
+      await restore();
+      Alert.alert("Başarılı", "Satın alımlarınız geri yüklendi.");
+    } catch {
+      Alert.alert("Hata", "Satın alımlar geri yüklenemedi.");
+    }
   };
 
   return (
@@ -147,9 +169,7 @@ export default function SubscriptionScreen() {
                 style={({ pressed }) => [
                   styles.card,
                   {
-                    backgroundColor: tier.highlight
-                      ? colors.primary
-                      : colors.card,
+                    backgroundColor: tier.highlight ? colors.primary : colors.card,
                     borderColor: isSelected
                       ? (tier.highlight ? "rgba(255,255,255,0.5)" : colors.primary)
                       : (tier.highlight ? "transparent" : colors.border),
@@ -247,44 +267,99 @@ export default function SubscriptionScreen() {
                 </View>
 
                 {isSelected && !tier.locked && tier.id !== "aday" && (
-                  <Pressable
+                  <ApplePayButton
                     onPress={() => handleSubscribe(tier)}
-                    style={[
-                      styles.ctaBtn,
-                      {
-                        backgroundColor: tier.highlight ? "#fff" : colors.primary,
-                        borderRadius: colors.radius,
-                      },
-                    ]}
-                  >
-                    {loading ? (
-                      <ActivityIndicator
-                        size="small"
-                        color={tier.highlight ? colors.primary : colors.primaryForeground}
-                      />
-                    ) : (
-                      <Text
-                        style={[
-                          styles.ctaText,
-                          { color: tier.highlight ? colors.primary : colors.primaryForeground },
-                        ]}
-                      >
-                        {tier.cta}
-                      </Text>
-                    )}
-                  </Pressable>
+                    loading={isPurchasing}
+                    highlight={tier.highlight}
+                    primaryColor={colors.primary}
+                    primaryForeground={colors.primaryForeground}
+                    radius={colors.radius}
+                  />
                 )}
               </Pressable>
             );
           })}
         </View>
 
+        {/* Ödeme yöntemleri bilgisi */}
+        <View style={[styles.paymentMethods, { borderColor: colors.border }]}>
+          <Text style={[styles.paymentTitle, { color: colors.mutedForeground }]}>
+            Desteklenen ödeme yöntemleri
+          </Text>
+          <View style={styles.paymentRow}>
+            <View style={[styles.paymentBadge, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <Text style={[styles.paymentBadgeText, { color: colors.foreground }]}>
+                {Platform.OS === "web" ? "🍎" : ""}  Apple Pay
+              </Text>
+            </View>
+            <View style={[styles.paymentBadge, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <Text style={[styles.paymentBadgeText, { color: colors.foreground }]}>
+                📱  Mobil Ödeme
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        <Pressable onPress={handleRestore} disabled={isRestoring} style={styles.restoreBtn}>
+          {isRestoring ? (
+            <ActivityIndicator size="small" color={colors.mutedForeground} />
+          ) : (
+            <Text style={[styles.restoreText, { color: colors.mutedForeground }]}>
+              Satın alımları geri yükle
+            </Text>
+          )}
+        </Pressable>
+
         <Text style={[styles.legal, { color: colors.mutedForeground }]}>
-          Abonelik App Store üzerinden yönetilir. İstediğiniz zaman iptal edebilirsiniz.
+          Abonelik App Store üzerinden yönetilir. Apple Pay veya mobil operatör faturası ile ödeme yapılır.
+          İstediğiniz zaman Ayarlar → Apple ID → Abonelikler üzerinden iptal edebilirsiniz.
           Fiyatlar KDV dahildir.
         </Text>
       </ScrollView>
     </View>
+  );
+}
+
+function ApplePayButton({
+  onPress,
+  loading,
+  highlight,
+  primaryColor,
+  primaryForeground,
+  radius,
+}: {
+  onPress: () => void;
+  loading: boolean;
+  highlight: boolean;
+  primaryColor: string;
+  primaryForeground: string;
+  radius: number;
+}) {
+  const bg = highlight ? "#fff" : "#000";
+  const fg = highlight ? primaryColor : "#fff";
+
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={loading}
+      style={({ pressed }) => [
+        styles.applePayBtn,
+        {
+          backgroundColor: bg,
+          borderRadius: radius,
+          opacity: pressed || loading ? 0.75 : 1,
+        },
+      ]}
+    >
+      {loading ? (
+        <ActivityIndicator size="small" color={fg} />
+      ) : (
+        <View style={styles.applePayInner}>
+          <Text style={[styles.applePayLogo, { color: fg }]}></Text>
+          <Text style={[styles.applePayText, { color: fg }]}>ile öde</Text>
+        </View>
+      )}
+    </Pressable>
   );
 }
 
@@ -377,16 +452,63 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
   },
-  ctaBtn: {
-    height: 46,
+  applePayBtn: {
+    height: 50,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 4,
   },
-  ctaText: {
+  applePayInner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  applePayLogo: {
+    fontSize: 20,
+    lineHeight: 24,
+  },
+  applePayText: {
     fontFamily: "Inter_600SemiBold",
+    fontSize: 16,
+    letterSpacing: 0.2,
+  },
+  paymentMethods: {
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 14,
+    gap: 10,
+  },
+  paymentTitle: {
+    fontFamily: "Inter_500Medium",
+    fontSize: 11,
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
+  },
+  paymentRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  paymentBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 8,
+    borderWidth: 1,
+    gap: 6,
+  },
+  paymentBadgeText: {
+    fontFamily: "Inter_500Medium",
     fontSize: 13,
-    letterSpacing: 0.4,
+  },
+  restoreBtn: {
+    alignItems: "center",
+    paddingVertical: 8,
+  },
+  restoreText: {
+    fontFamily: "Inter_400Regular",
+    fontSize: 13,
+    textDecorationLine: "underline",
   },
   legal: {
     fontFamily: "Inter_400Regular",

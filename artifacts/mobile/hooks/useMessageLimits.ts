@@ -1,6 +1,6 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { MembershipLevel } from "@/constants/data";
+import { useTokens as apiUseTokens } from "@/services/membership";
 
 export interface MemberLimits {
   chatMessages: number | null;
@@ -9,7 +9,8 @@ export interface MemberLimits {
   canCreateEvents: boolean;
 }
 
-export const AI_TOKEN_COST = 50;
+export const AI_TOKEN_COST = 150;
+export const CHAT_TOKEN_COST = 10;
 
 export const MEMBER_LIMITS: Record<MembershipLevel, MemberLimits> = {
   0: { chatMessages: 3,    monthlyTokens: 250,    dmMessages: 0,    canCreateEvents: false },
@@ -25,48 +26,50 @@ export const MEMBERSHIP_LABEL_FULL: Record<MembershipLevel, string> = {
   3: "SEÇKİN",
 };
 
-function thisMonthKey() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-}
-
-function todayKey() {
-  return new Date().toISOString().split("T")[0];
-}
-
 export function useMessageLimits(level: MembershipLevel) {
   const limits = MEMBER_LIMITS[level];
-  const [chatUsed, setChatUsed] = useState(0);
   const [tokensUsed, setTokensUsed] = useState(0);
-  const month = thisMonthKey();
-  const today = todayKey();
+  const [tokensAllowed, setTokensAllowed] = useState(limits.monthlyTokens);
+  const syncedRef = useRef(false);
 
   useEffect(() => {
-    AsyncStorage.getItem(`@orun:chat:${today}`).then(v => { if (v) setChatUsed(+v); });
-    AsyncStorage.getItem(`@orun:tokens:${month}`).then(v => { if (v) setTokensUsed(+v); });
-  }, [today, month]);
+    if (syncedRef.current) return;
+    syncedRef.current = true;
+    apiUseTokens(0)
+      .then(({ tokensUsed: used, tokensAllowed: allowed }) => {
+        setTokensUsed(used);
+        setTokensAllowed(allowed);
+      })
+      .catch(() => {});
+  }, []);
 
   const recordChat = useCallback(async () => {
-    const n = chatUsed + 1;
-    setChatUsed(n);
-    await AsyncStorage.setItem(`@orun:chat:${today}`, String(n));
-  }, [chatUsed, today]);
+    setTokensUsed(prev => prev + CHAT_TOKEN_COST);
+    try {
+      const res = await apiUseTokens(CHAT_TOKEN_COST);
+      setTokensUsed(res.tokensUsed);
+      setTokensAllowed(res.tokensAllowed);
+    } catch {}
+  }, []);
 
   const recordAI = useCallback(async () => {
-    const n = tokensUsed + AI_TOKEN_COST;
-    setTokensUsed(n);
-    await AsyncStorage.setItem(`@orun:tokens:${month}`, String(n));
-  }, [tokensUsed, month]);
+    setTokensUsed(prev => prev + AI_TOKEN_COST);
+    try {
+      const res = await apiUseTokens(AI_TOKEN_COST);
+      setTokensUsed(res.tokensUsed);
+      setTokensAllowed(res.tokensAllowed);
+    } catch {}
+  }, []);
 
-  const tokensRemaining = Math.max(0, limits.monthlyTokens - tokensUsed);
+  const tokensRemaining = Math.max(0, tokensAllowed - tokensUsed);
   const aiRemaining = Math.floor(tokensRemaining / AI_TOKEN_COST);
-  const chatRemaining = limits.chatMessages === null ? null : Math.max(0, limits.chatMessages - chatUsed);
-  const canChat = limits.chatMessages === null || chatUsed < limits.chatMessages;
-  const canAsk = tokensUsed + AI_TOKEN_COST <= limits.monthlyTokens;
+  const chatRemaining = limits.chatMessages === null ? null : Math.max(0, limits.chatMessages - Math.floor(tokensUsed / CHAT_TOKEN_COST));
+  const canChat = tokensRemaining >= CHAT_TOKEN_COST && (limits.chatMessages === null || (chatRemaining !== null && chatRemaining > 0));
+  const canAsk = tokensRemaining >= AI_TOKEN_COST;
 
   return {
     limits,
-    chatUsed,
+    chatUsed: Math.floor(tokensUsed / CHAT_TOKEN_COST),
     tokensUsed,
     tokensRemaining,
     aiRemaining,

@@ -127,11 +127,11 @@ export default function MembershipScreen() {
 
               {!isCurrent && tier.level !== 3 && tier.level > user.membershipLevel && (
                 <Pressable
-                  style={[styles.upgradeBtn, { borderColor: color, borderRadius: colors.radius - 2 }]}
+                  style={[styles.upgradeBtn, { backgroundColor: "#000", borderRadius: colors.radius - 2 }]}
                   onPress={() => router.push("/subscription")}
                 >
-                  <Text style={[styles.upgradeBtnText, { color }]}>
-                    {MEMBERSHIP_LABELS[tier.level]}'e Yükselt
+                  <Text style={styles.upgradeBtnText}>
+                     ile {MEMBERSHIP_LABELS[tier.level]}'e Yükselt
                   </Text>
                 </Pressable>
               )}
@@ -185,8 +185,8 @@ const styles = StyleSheet.create({
   perkRow: { flexDirection: "row", alignItems: "center", gap: 8 },
   perkText: { fontFamily: "Inter_400Regular", fontSize: 13 },
   note: { fontFamily: "Inter_400Regular", fontSize: 11, fontStyle: "italic" as const },
-  upgradeBtn: { paddingVertical: 10, borderWidth: 1, alignItems: "center", marginTop: 4 },
-  upgradeBtnText: { fontFamily: "Inter_600SemiBold", fontSize: 12, letterSpacing: 0.5 },
+  upgradeBtn: { paddingVertical: 13, alignItems: "center", justifyContent: "center", marginTop: 4 },
+  upgradeBtnText: { fontFamily: "Inter_600SemiBold", fontSize: 15, letterSpacing: 0.2, color: "#fff" },
   legalLink: {
     flexDirection: "row",
     alignItems: "center",

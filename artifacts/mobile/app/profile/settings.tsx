@@ -1,16 +1,17 @@
 import { Feather } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import { useRouter, type Href } from "expo-router";
 import React, { type ComponentProps, useState } from "react";
 import { Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
+import { useApp } from "@/context/AppContext";
 
 export default function SettingsScreen() {
   const colors = useColors();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { logout } = useApp();
   const [notifications, setNotifications] = useState(true);
   const [roomInvites, setRoomInvites] = useState(true);
   const [aiSuggestions, setAiSuggestions] = useState(true);
@@ -21,8 +22,7 @@ export default function SettingsScreen() {
 
   const handleSignOut = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    await AsyncStorage.removeItem("@orun:onboarded");
-    await AsyncStorage.removeItem("@orun:user");
+    await logout();
     router.replace("/onboarding" as Href);
   };
 

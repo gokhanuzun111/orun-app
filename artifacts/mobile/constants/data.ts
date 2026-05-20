@@ -166,6 +166,7 @@ export interface UserProfile {
   reputation: number;
   interests: string[];
   memberSince: string;
+  isAdmin?: boolean;
 }
 
 export type MembershipLevel = 0 | 1 | 2 | 3;
