@@ -6,3 +6,4 @@ export * from "./club_memberships";
 export * from "./event_rsvps";
 export * from "./moderation";
 export * from "./consents";
+export * from "./room_messages";

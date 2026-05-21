@@ -11,6 +11,7 @@ import {
 } from "@workspace/db/schema";
 import * as schema from "@workspace/db/schema";
 import { requireAuth, type AuthRequest } from "../lib/auth";
+import { VALID_CLUB_IDS } from "../lib/registry";
 
 const router = Router();
 
@@ -71,6 +72,7 @@ router.post("/clubs/:clubId/join", requireAuth, async (req: AuthRequest, res) =>
   const parsed = clubIdSchema.safeParse(req.params.clubId);
   if (!parsed.success) return res.status(400).json({ error: "Geçersiz kulüp" });
   const clubId = parsed.data;
+  if (!VALID_CLUB_IDS.has(clubId)) return res.status(404).json({ error: "Kulüp bulunamadı" });
   const userId = req.userId!;
 
   const result = await db.transaction(async (tx) => {
@@ -109,6 +111,7 @@ router.delete("/clubs/:clubId/join", requireAuth, async (req: AuthRequest, res) 
   const parsed = clubIdSchema.safeParse(req.params.clubId);
   if (!parsed.success) return res.status(400).json({ error: "Geçersiz kulüp" });
   const clubId = parsed.data;
+  if (!VALID_CLUB_IDS.has(clubId)) return res.status(404).json({ error: "Kulüp bulunamadı" });
   if (clubId === MASTER_CLUB_ID) {
     return res.status(400).json({ error: "Ana kulüpten ayrılamazsınız" });
   }
@@ -126,6 +129,7 @@ router.post("/clubs/:clubId/waitlist", requireAuth, async (req: AuthRequest, res
   const parsed = clubIdSchema.safeParse(req.params.clubId);
   if (!parsed.success) return res.status(400).json({ error: "Geçersiz kulüp" });
   const clubId = parsed.data;
+  if (!VALID_CLUB_IDS.has(clubId)) return res.status(404).json({ error: "Kulüp bulunamadı" });
   const userId = req.userId!;
 
   const [inserted] = await db
@@ -152,6 +156,7 @@ router.delete("/clubs/:clubId/waitlist", requireAuth, async (req: AuthRequest, r
   const parsed = clubIdSchema.safeParse(req.params.clubId);
   if (!parsed.success) return res.status(400).json({ error: "Geçersiz kulüp" });
   const clubId = parsed.data;
+  if (!VALID_CLUB_IDS.has(clubId)) return res.status(404).json({ error: "Kulüp bulunamadı" });
   const userId = req.userId!;
   await db
     .delete(clubWaitlistTable)

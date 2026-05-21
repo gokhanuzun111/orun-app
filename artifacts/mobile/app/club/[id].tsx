@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RoomCard } from "@/components/RoomCard";
-import { CLUBS, ROOMS, LANGUAGE_CONFIG, MASTER_ANNOUNCEMENTS, MASTER_EVENTS, WEEKLY_SUMMARY } from "@/constants/data";
+import { CLUBS, ROOMS, LANGUAGE_CONFIG, MASTER_ANNOUNCEMENTS, WEEKLY_SUMMARY } from "@/constants/data";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 
@@ -31,7 +31,7 @@ export default function ClubDetailScreen() {
   const colors = useColors();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { user, joinClub, leaveClub, joinWaitlist, leaveWaitlist, isOnWaitlist, rsvpEvent, unrsvpEvent, isRsvped } = useApp();
+  const { user, joinClub, leaveClub, joinWaitlist, leaveWaitlist, isOnWaitlist } = useApp();
 
   const [emailInput, setEmailInput] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -367,74 +367,6 @@ export default function ClubDetailScreen() {
                   <Text style={[styles.announcementDate, { color: colors.mutedForeground }]}>{ann.date}</Text>
                 </View>
               ))}
-            </View>
-
-            <View style={[styles.divider, { backgroundColor: colors.border }]} />
-
-            <View style={styles.masterSection}>
-              <View style={styles.sectionHeader}>
-                <Feather name="calendar" size={11} color={colors.mutedForeground} />
-                <Text style={[styles.sectionTitle, { color: colors.mutedForeground }]}>ETKİNLİKLER</Text>
-              </View>
-              {MASTER_EVENTS.map(evt => {
-                const rsvped = isRsvped(evt.id);
-                const displayCount = evt.attendeeCount + (rsvped ? 1 : 0);
-                const handleRsvp = () => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                  if (rsvped) {
-                    unrsvpEvent(evt.id);
-                  } else {
-                    rsvpEvent(evt.id);
-                  }
-                };
-                return (
-                  <View
-                    key={evt.id}
-                    style={[
-                      styles.eventCard,
-                      { backgroundColor: colors.card, borderColor: rsvped ? colors.primary : colors.border, borderRadius: colors.radius },
-                    ]}
-                  >
-                    <Text style={[styles.eventTitle, { color: colors.foreground }]}>{evt.title}</Text>
-                    <Text style={[styles.eventDescription, { color: colors.mutedForeground }]}>{evt.description}</Text>
-                    <View style={styles.eventMeta}>
-                      <View style={styles.eventMetaRow}>
-                        <Feather name="calendar" size={12} color={colors.mutedForeground} />
-                        <Text style={[styles.eventMetaText, { color: colors.mutedForeground }]}>{evt.date}</Text>
-                      </View>
-                      <View style={styles.eventMetaRow}>
-                        <Feather name="map-pin" size={12} color={colors.mutedForeground} />
-                        <Text style={[styles.eventMetaText, { color: colors.mutedForeground }]}>{evt.location}</Text>
-                      </View>
-                      <View style={styles.eventMetaRow}>
-                        <Feather name="users" size={12} color={colors.primary} />
-                        <Text style={[styles.eventAttendees, { color: colors.primary }]}>
-                          {displayCount} katılımcı
-                        </Text>
-                      </View>
-                    </View>
-                    <View style={styles.eventRsvpRow}>
-                      <Pressable
-                        testID={`rsvp-btn-${evt.id}`}
-                        onPress={handleRsvp}
-                        style={[
-                          styles.rsvpBtn,
-                          {
-                            backgroundColor: rsvped ? colors.primary : "transparent",
-                            borderColor: rsvped ? colors.primary : colors.border,
-                            borderRadius: colors.radius,
-                          },
-                        ]}
-                      >
-                        {rsvped && <Feather name="check" size={12} color={colors.background} style={{ marginRight: 5 }} />}
-                        <Text style={[styles.rsvpBtnText, { color: rsvped ? colors.background : colors.foreground }]}>
-                          {rsvped ? "Vazgeç" : "Katıl"}
-                        </Text>
-                      </Pressable>
-                    </View>
-                  </View>
-                );
-              })}
             </View>
 
             <View style={[styles.divider, { backgroundColor: colors.border }]} />

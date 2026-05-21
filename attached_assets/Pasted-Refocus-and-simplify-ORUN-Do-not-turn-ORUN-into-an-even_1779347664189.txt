@@ -1,0 +1,103 @@
+Refocus and simplify ORUN.
+
+Do not turn ORUN into an event platform, marketplace, Discord clone or complex social network.
+
+CORE PRODUCT
+ORUN should be:
+- Premium niche club chat app
+- Minimal calm rooms
+- Membership-based access
+- AI-assisted moderation
+- Quiet, high-quality community
+- Simple, elegant Turkish-first experience
+
+Main navigation should focus on:
+- Clubs
+- Rooms
+- Chat
+- Membership
+- Profile
+
+EVENTS / GATHERINGS
+Remove heavy event logic from the core product.
+
+Do not build:
+- Event marketplace
+- Complex RSVP system
+- Capacity management
+- Host verification
+- Event badges
+- Prestige event layer
+- Event approval workflows
+
+Instead:
+- If members want to meet, they can create a simple “buluşma” post inside a club room in the future.
+- For now, de-prioritize event tables, RSVP UI and event-specific navigation.
+- If removing event code risks breaking the app, mark it deprecated and hide it from primary UX.
+
+FIX CURRENT TECHNICAL GAPS
+1. Club validation:
+   - Add real clubs table or a server-side allowed club registry.
+   - Reject unknown clubId.
+   - Do not allow joining arbitrary fake club strings.
+
+2. Room validation:
+   - Add room validation.
+   - Reject unknown roomId.
+   - Ensure room belongs to a valid club.
+
+3. Membership access:
+   - Enforce club and room access server-side.
+   - Do not rely on mobile UI checks only.
+   - Aday / Üye / Müdavim / Seçkin permissions must be checked by backend.
+
+4. Chat persistence:
+   - Add database-backed messages table.
+   - Store messages server-side.
+   - Message history should not be mock/local only.
+
+5. Chat API:
+   - Add authenticated chat send/list endpoints.
+   - Validate membership access before sending messages.
+   - Validate room access before reading messages.
+   - Add pagination for room messages.
+
+6. Moderation:
+   - Keep report/block/moderation simple but real.
+   - Add basic server-side profanity/spam checks before saving messages.
+   - Keep AI moderation discreet.
+   - Do not overbuild admin dashboards yet.
+
+7. AI:
+   - AI should assist inside rooms as a subtle concierge/moderator.
+   - Keep AI token limits server-side.
+   - AI should not dominate the room.
+   - AI should not create noisy engagement.
+
+8. Mobile state:
+   - Local state can be UI cache only.
+   - Source of truth must be backend for membership, joined clubs, room access and messages.
+
+9. UX simplification:
+   - Remove or hide event-heavy screens from primary navigation.
+   - Make room chat the main experience.
+   - Keep UI calm, minimal and premium.
+   - Avoid gamification, badges and noisy feeds.
+
+10. Build discipline:
+   - Do not redesign everything.
+   - Do not add unrelated features.
+   - Keep existing working screens stable.
+   - Run pnpm run typecheck.
+   - Do not claim complete unless typecheck passes.
+
+PRODUCT PRINCIPLE
+ORUN should feel like a quiet premium private club chat app:
+not Meetup,
+not Eventbrite,
+not Discord,
+not Reddit,
+not Instagram.
+
+Priority:
+Clubs → Rooms → Chat → Membership → Moderation → AI.

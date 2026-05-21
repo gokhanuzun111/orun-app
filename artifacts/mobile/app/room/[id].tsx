@@ -26,11 +26,13 @@ import {
   LANGUAGE_AI_MESSAGES,
   LANGUAGE_CONFIG,
   type Message,
+  type MembershipLevel,
 } from "@/constants/data";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 import { checkRoomAccess } from "@/hooks/useRoomAccess";
 import { useMessageLimits } from "@/hooks/useMessageLimits";
+import { getMessages, sendMessage, type ServerMessage } from "@/services/messages";
 
 const FAKE_HANDLES = [
   "Ahmet", "Mehmet", "Burak", "Selin", "Zeynep", "Kaan", "Deniz",
@@ -73,6 +75,28 @@ export default function RoomScreen() {
 
   const presenceFlash = useRef(new Animated.Value(1)).current;
   const flatListRef = useRef<FlatList>(null);
+
+  useEffect(() => {
+    if (!id || isLangRoom) return;
+    getMessages(id as string)
+      .then((res) => {
+        if (res.messages.length === 0) return;
+        const mapped: Message[] = res.messages.map((m: ServerMessage) => ({
+          id: String(m.id),
+          author: m.handle.replace("@", ""),
+          handle: m.handle.startsWith("@") ? m.handle : `@${m.handle}`,
+          content: m.content,
+          timestamp: new Date(m.createdAt).toLocaleTimeString("tr-TR", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          }),
+          membershipLevel: m.membershipLevel as MembershipLevel,
+        }));
+        setMessages(mapped);
+      })
+      .catch(() => {});
+  }, [id]);
 
   const [reportVisible, setReportVisible] = useState(false);
   const [reportTarget, setReportTarget] = useState<{ handle: string; content: string } | null>(null);
@@ -171,6 +195,10 @@ export default function RoomScreen() {
     setMessages(prev => [newMsg, ...prev]);
     if (!text) setInputText("");
     recordChat();
+
+    if (!isLangRoom && id) {
+      sendMessage(id as string, content).catch(() => {});
+    }
 
     if (isLangRoom) {
       setTimeout(() => {
