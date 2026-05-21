@@ -2,6 +2,8 @@ import React, { createContext, useCallback, useContext, useEffect, useRef, useSt
 import { Platform } from "react-native";
 import { type UserProfile, MOCK_USER, type MembershipLevel } from "@/constants/data";
 import * as authService from "@/services/auth";
+import * as clubsService from "@/services/clubs";
+import * as eventsService from "@/services/events";
 import { getStoredToken } from "@/services/api";
 import {
   addCustomerInfoListener,
@@ -32,13 +34,13 @@ interface AppContextValue {
   registerWithEmail: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   deleteAccount: () => Promise<void>;
-  joinClub: (clubId: string) => void;
-  leaveClub: (clubId: string) => void;
-  joinWaitlist: (clubId: string, email: string) => void;
-  leaveWaitlist: (clubId: string) => void;
+  joinClub: (clubId: string) => Promise<void>;
+  leaveClub: (clubId: string) => Promise<void>;
+  joinWaitlist: (clubId: string, email?: string) => Promise<void>;
+  leaveWaitlist: (clubId: string) => Promise<void>;
   isOnWaitlist: (clubId: string) => boolean;
-  rsvpEvent: (eventId: string) => void;
-  unrsvpEvent: (eventId: string) => void;
+  rsvpEvent: (eventId: string) => Promise<void>;
+  unrsvpEvent: (eventId: string) => Promise<void>;
   isRsvped: (eventId: string) => boolean;
   refreshUser: () => Promise<void>;
 }
@@ -51,7 +53,7 @@ function rsvpStorageKey(userId: string) {
   return `@orun:rsvps:${userId}`;
 }
 
-async function loadRsvps(userId: string): Promise<string[]> {
+async function loadRsvpsCache(userId: string): Promise<string[]> {
   try {
     const key = rsvpStorageKey(userId);
     let raw: string | null = null;
@@ -69,7 +71,7 @@ async function loadRsvps(userId: string): Promise<string[]> {
   }
 }
 
-async function saveRsvps(userId: string, eventIds: string[]): Promise<void> {
+async function saveRsvpsCache(userId: string, eventIds: string[]): Promise<void> {
   try {
     const key = rsvpStorageKey(userId);
     const raw = JSON.stringify(eventIds);
@@ -83,7 +85,7 @@ async function saveRsvps(userId: string, eventIds: string[]): Promise<void> {
   }
 }
 
-async function clearRsvps(userId: string): Promise<void> {
+async function clearRsvpsCache(userId: string): Promise<void> {
   try {
     const key = rsvpStorageKey(userId);
     if (Platform.OS === "web") {
@@ -121,25 +123,51 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([]);
   const [rsvpedEvents, setRsvpedEvents] = useState<string[]>([]);
 
-  const rsvpUserIdRef = useRef<string | null>(null);
-  const isInitialRsvpLoad = useRef(true);
+  const currentUserIdRef = useRef<string | null>(null);
 
-  const loadAndSetRsvps = useCallback(async (userId: string) => {
-    rsvpUserIdRef.current = userId;
-    isInitialRsvpLoad.current = true;
-    const stored = await loadRsvps(userId);
-    setRsvpedEvents(stored);
-  }, []);
+  const hydrateServerStateFor = useCallback(async (profile: UserProfile) => {
+    currentUserIdRef.current = profile.id;
 
-  useEffect(() => {
-    if (isInitialRsvpLoad.current) {
-      isInitialRsvpLoad.current = false;
-      return;
+    // 1) Paint instantly from cache
+    const cached = await loadRsvpsCache(profile.id);
+    setRsvpedEvents(cached);
+
+    // 2) Fetch authoritative state from server
+    try {
+      const [clubsRes, rsvpsRes] = await Promise.all([
+        clubsService.getMyClubs(),
+        eventsService.getMyRsvps(),
+      ]);
+
+      const serverClubIds = clubsRes.memberships.map((m) => m.clubId);
+      const serverClubDates: Record<string, string> = {};
+      for (const m of clubsRes.memberships) serverClubDates[m.clubId] = m.joinedAt;
+
+      setUser((prev) =>
+        prev.id === profile.id
+          ? {
+              ...prev,
+              joinedClubs: serverClubIds.length > 0 ? serverClubIds : ["master"],
+              clubJoinDates: serverClubIds.length > 0 ? serverClubDates : { master: OLD_DATE },
+            }
+          : prev,
+      );
+
+      setWaitlist(
+        clubsRes.waitlist.map((w) => ({
+          clubId: w.clubId,
+          roomId: w.clubId,
+          joinedAt: w.joinedAt,
+        })),
+      );
+
+      const serverEventIds = rsvpsRes.rsvps.map((r) => r.eventId);
+      setRsvpedEvents(serverEventIds);
+      await saveRsvpsCache(profile.id, serverEventIds);
+    } catch (err: any) {
+      if (__DEV__) console.warn("hydrateServerState failed:", err?.message);
     }
-    const userId = rsvpUserIdRef.current;
-    if (!userId || userId === MOCK_USER.id) return;
-    saveRsvps(userId, rsvpedEvents);
-  }, [rsvpedEvents]);
+  }, []);
 
   const refreshUser = useCallback(async () => {
     const apiUser = await authService.getMe();
@@ -147,7 +175,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const profile = apiUserToProfile(apiUser);
       setUser(profile);
       setIsOnboarded(true);
-      await loadAndSetRsvps(profile.id);
+      await hydrateServerStateFor(profile);
       if (isRevenueCatSupported()) {
         try {
           const info = await identifyRevenueCat(profile.id);
@@ -161,7 +189,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         }
       }
     }
-  }, [loadAndSetRsvps]);
+  }, [hydrateServerStateFor]);
 
   useEffect(() => {
     const init = async () => {
@@ -198,113 +226,169 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const profile = apiUserToProfile(apiUser);
     setUser(profile);
     setIsOnboarded(true);
-    await loadAndSetRsvps(profile.id);
-  }, [loadAndSetRsvps]);
+    await hydrateServerStateFor(profile);
+  }, [hydrateServerStateFor]);
 
   const loginWithEmail = useCallback(async (email: string, password: string) => {
     const apiUser = await authService.login(email, password);
     const profile = apiUserToProfile(apiUser);
     setUser(profile);
     setIsOnboarded(true);
-    await loadAndSetRsvps(profile.id);
-  }, [loadAndSetRsvps]);
+    await hydrateServerStateFor(profile);
+  }, [hydrateServerStateFor]);
 
   const registerWithEmail = useCallback(async (name: string, email: string, password: string) => {
     const apiUser = await authService.register(name, email, password);
     const profile = apiUserToProfile(apiUser);
     setUser(profile);
-    await loadAndSetRsvps(profile.id);
-  }, [loadAndSetRsvps]);
+    await hydrateServerStateFor(profile);
+  }, [hydrateServerStateFor]);
 
   const logout = useCallback(async () => {
-    const userId = rsvpUserIdRef.current;
+    const userId = currentUserIdRef.current;
     await authService.logout();
     await logoutRevenueCat();
-    if (userId) await clearRsvps(userId);
-    rsvpUserIdRef.current = null;
+    if (userId) await clearRsvpsCache(userId);
+    currentUserIdRef.current = null;
     setUser(MOCK_USER);
     setIsOnboarded(false);
     setSelectedInterests([]);
     setWaitlist([]);
-    isInitialRsvpLoad.current = true;
     setRsvpedEvents([]);
   }, []);
 
   const deleteAccount = useCallback(async () => {
-    const userId = rsvpUserIdRef.current;
+    const userId = currentUserIdRef.current;
     await authService.deleteAccount();
-    if (userId) await clearRsvps(userId);
-    rsvpUserIdRef.current = null;
+    if (userId) await clearRsvpsCache(userId);
+    currentUserIdRef.current = null;
     setUser(MOCK_USER);
     setIsOnboarded(false);
     setSelectedInterests([]);
     setWaitlist([]);
-    isInitialRsvpLoad.current = true;
     setRsvpedEvents([]);
   }, []);
 
   const completeOnboarding = useCallback(async (handle: string, bio: string, interests: string[]) => {
     const apiUser = await authService.updateProfile({ handle, bio, interests });
-    const profileUser: UserProfile = {
+    const profile: UserProfile = {
       ...apiUserToProfile(apiUser),
       membershipLevel: 1 as MembershipLevel,
-      joinedClubs: ["master", ...interests.slice(0, 5)],
-      clubJoinDates: {
-        master: OLD_DATE,
-        ...Object.fromEntries(interests.slice(0, 5).map(id => [id, new Date().toISOString()])),
-      },
     };
-    setUser(profileUser);
+    setUser(profile);
     setIsOnboarded(true);
-    await loadAndSetRsvps(profileUser.id);
-  }, [loadAndSetRsvps]);
 
-  const joinClub = useCallback((clubId: string) => {
-    setUser(prev => {
-      if (prev.joinedClubs.includes(clubId)) return prev;
+    // Persist interest-based club memberships to the server (max 5).
+    const seedClubs = interests.slice(0, 5);
+    await Promise.allSettled(
+      seedClubs.map((clubId) => clubsService.joinClub(clubId).catch(() => undefined)),
+    );
+
+    await hydrateServerStateFor(profile);
+  }, [hydrateServerStateFor]);
+
+  const joinClub = useCallback(async (clubId: string) => {
+    const prevUser = user;
+    setUser((u) => {
+      if (u.joinedClubs.includes(clubId)) return u;
       return {
-        ...prev,
-        joinedClubs: [...prev.joinedClubs, clubId],
-        clubJoinDates: { ...prev.clubJoinDates, [clubId]: new Date().toISOString() },
+        ...u,
+        joinedClubs: [...u.joinedClubs, clubId],
+        clubJoinDates: { ...u.clubJoinDates, [clubId]: new Date().toISOString() },
       };
     });
-  }, []);
+    try {
+      const res = await clubsService.joinClub(clubId);
+      setUser((u) => ({
+        ...u,
+        clubJoinDates: { ...u.clubJoinDates, [clubId]: res.joinedAt },
+      }));
+    } catch (err) {
+      setUser(prevUser);
+      throw err;
+    }
+  }, [user]);
 
-  const leaveClub = useCallback((clubId: string) => {
-    setUser(prev => {
-      const updatedDates = { ...prev.clubJoinDates };
+  const leaveClub = useCallback(async (clubId: string) => {
+    const prevUser = user;
+    setUser((u) => {
+      const updatedDates = { ...u.clubJoinDates };
       delete updatedDates[clubId];
       return {
-        ...prev,
-        joinedClubs: prev.joinedClubs.filter(id => id !== clubId),
+        ...u,
+        joinedClubs: u.joinedClubs.filter((id) => id !== clubId),
         clubJoinDates: updatedDates,
       };
     });
-  }, []);
+    try {
+      await clubsService.leaveClub(clubId);
+    } catch (err) {
+      setUser(prevUser);
+      throw err;
+    }
+  }, [user]);
 
-  const joinWaitlist = useCallback((clubId: string, _email: string) => {
-    setWaitlist(prev => {
-      if (prev.some(e => e.clubId === clubId)) return prev;
-      return [...prev, { clubId, roomId: clubId, joinedAt: new Date().toISOString() }];
-    });
-  }, []);
+  const joinWaitlist = useCallback(async (clubId: string, _email?: string) => {
+    const prev = waitlist;
+    setWaitlist((w) =>
+      w.some((e) => e.clubId === clubId)
+        ? w
+        : [...w, { clubId, roomId: clubId, joinedAt: new Date().toISOString() }],
+    );
+    try {
+      const res = await clubsService.joinClubWaitlist(clubId);
+      setWaitlist((w) =>
+        w.map((e) => (e.clubId === clubId ? { ...e, joinedAt: res.joinedAt } : e)),
+      );
+    } catch (err) {
+      setWaitlist(prev);
+      throw err;
+    }
+  }, [waitlist]);
 
-  const leaveWaitlist = useCallback((clubId: string) => {
-    setWaitlist(prev => prev.filter(e => e.clubId !== clubId));
-  }, []);
+  const leaveWaitlist = useCallback(async (clubId: string) => {
+    const prev = waitlist;
+    setWaitlist((w) => w.filter((e) => e.clubId !== clubId));
+    try {
+      await clubsService.leaveClubWaitlist(clubId);
+    } catch (err) {
+      setWaitlist(prev);
+      throw err;
+    }
+  }, [waitlist]);
 
   const isOnWaitlist = useCallback(
-    (clubId: string) => waitlist.some(e => e.clubId === clubId),
+    (clubId: string) => waitlist.some((e) => e.clubId === clubId),
     [waitlist],
   );
 
-  const rsvpEvent = useCallback((eventId: string) => {
-    setRsvpedEvents(prev => prev.includes(eventId) ? prev : [...prev, eventId]);
-  }, []);
+  const rsvpEvent = useCallback(async (eventId: string) => {
+    const userId = currentUserIdRef.current;
+    const prev = rsvpedEvents;
+    const next = prev.includes(eventId) ? prev : [...prev, eventId];
+    setRsvpedEvents(next);
+    try {
+      await eventsService.rsvpEvent(eventId);
+      if (userId) await saveRsvpsCache(userId, next);
+    } catch (err) {
+      setRsvpedEvents(prev);
+      throw err;
+    }
+  }, [rsvpedEvents]);
 
-  const unrsvpEvent = useCallback((eventId: string) => {
-    setRsvpedEvents(prev => prev.filter(id => id !== eventId));
-  }, []);
+  const unrsvpEvent = useCallback(async (eventId: string) => {
+    const userId = currentUserIdRef.current;
+    const prev = rsvpedEvents;
+    const next = prev.filter((id) => id !== eventId);
+    setRsvpedEvents(next);
+    try {
+      await eventsService.unrsvpEvent(eventId);
+      if (userId) await saveRsvpsCache(userId, next);
+    } catch (err) {
+      setRsvpedEvents(prev);
+      throw err;
+    }
+  }, [rsvpedEvents]);
 
   const isRsvped = useCallback(
     (eventId: string) => rsvpedEvents.includes(eventId),

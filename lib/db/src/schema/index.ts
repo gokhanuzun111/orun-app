@@ -2,5 +2,7 @@ export * from "./users";
 export * from "./sessions";
 export * from "./token_usage";
 export * from "./room_access";
+export * from "./club_memberships";
+export * from "./event_rsvps";
 export * from "./moderation";
 export * from "./consents";
