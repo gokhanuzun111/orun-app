@@ -171,6 +171,17 @@ const termsHtml = layout(
 `,
 );
 
+router.get("/", (_req, res) => {
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.setHeader("Cache-Control", "public, max-age=3600");
+  res.send(
+    layout(
+      "Yasal Bilgiler",
+      `<p>ORUN yasal belgeleri:</p><ul><li><a href="/legal/privacy">Gizlilik Politikası</a></li><li><a href="/legal/terms">Kullanım Koşulları</a></li></ul>`,
+    ),
+  );
+});
+
 router.get("/privacy", (_req, res) => {
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.setHeader("Cache-Control", "public, max-age=3600");

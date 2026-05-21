@@ -8,4 +8,8 @@ router.get("/healthz", (_req, res) => {
   res.json(data);
 });
 
+router.get("/", (_req, res) => {
+  res.json({ status: "ok", service: "orun-api" });
+});
+
 export default router;
